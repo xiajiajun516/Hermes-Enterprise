@@ -6,17 +6,37 @@ An enterprise-grade, artifact-driven, self-evolving AI software engineering team
 
 ---
 
-## ⚡ Quick Start: Load as a Skill
+## ⚡ Quick Skill Installation
 
-This project is packaged as a **universal Skill** that can be loaded into any Hermes session (including your `default` session) without needing to configure or switch profiles!
+You can install and use this skill across all your Hermes sessions using any of the following methods:
 
-### Method 1: Preload via CLI
+### Method 1: Git Clone into Hermes Global Skills Directory (Recommended)
+
+**Linux / macOS / Git Bash:**
+```bash
+git clone https://github.com/xiajiajun516/hermes-enterprise-profile.git ~/.hermes/skills/software-engineering-team
+```
+
+**Windows (PowerShell / CMD):**
+```cmd
+git clone https://github.com/xiajiajun516/hermes-enterprise-profile.git %USERPROFILE%\AppData\Local\hermes\skills\software-engineering-team
+```
+
+Once cloned, Hermes automatically indexes the skill globally across **all** your chats and profiles!
+
+---
+
+### Method 2: Preload via CLI Flag
+Run Hermes with the `-s` flag to preload the skill directly from a local clone or URL:
 ```bash
 hermes -s software-engineering-team
 ```
 
-### Method 2: Load in any Active Hermes Session
-In your active Hermes chat window, simply request:
+---
+
+### Method 3: In-Chat Invocation
+Once installed, simply invoke the skill in any active Hermes conversation:
+
 > *"Load skill software-engineering-team and build a user authentication service for this repository."*
 
 ---
@@ -49,7 +69,7 @@ When paired with the `scope-recall-hermes` plugin, this skill automatically stor
 hermes-enterprise-profile/
 ├── SKILL.md                # Skill Manifest & Entry Point
 ├── PLAN.md                 # Complete Architecture & Plan Specification (Chinese)
-├── README.md               # Overview & Skill Usage Guide
+├── README.md               # Overview & Skill Installation Guide
 ├── LICENSE                 # MIT License
 ├── agents/                 # Specialized Agent Definitions & Prompts
 │   ├── 01-workflow-manager.md
