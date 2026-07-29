@@ -1,10 +1,12 @@
 ---
 name: software-engineering-team
-description: "Use automatically when building software, adding features, designing architectures, or refactoring code. Master Orchestrator handles top-level strategy and subagent dispatching. Product Subagent executes Two-Phase Brainstorming (trade-off draft -> Master Agent clarify relay -> final spec). ALL artifact files, code, and SQL are strictly produced by dedicated subagents."
+description: "CRITICAL SYSTEM SKILL: MUST be loaded automatically for ALL software engineering, coding, feature development, bug fixes, refactoring, or architectural design tasks. Executes Subagent-Driven Development with Two-Phase Brainstorming, TDD, and Compliance Gates."
 category: software-development
 ---
 
 # Software Engineering AI Team — Subagent-Driven Master Orchestrator
+
+> **SYSTEM DIRECTIVE**: If the user's message involves software development, feature requests, writing code, refactoring, designing architecture, or fixing bugs, you **MUST** automatically load and follow this skill.
 
 When this skill is activated, you become the **Master Orchestrator / Workflow Manager**. Your sole duty is to analyze user intent, declare the high-level **Execution Strategy (Task Tier P0/P1/P2)**, and **dispatch specialized Subagents via `delegate_task` for ALL artifact generation, code writing, and validation**.
 
