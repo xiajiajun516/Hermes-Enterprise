@@ -1,6 +1,6 @@
 ---
 name: software-engineering-team
-description: "Use automatically when building software, adding features, designing architectures, or refactoring code. Master Orchestrator handles top-level strategy and subagent dispatching. Product Subagent executes Brainstorming, intent exploration, and spec creation. ALL artifact files, code, and SQL are strictly produced by dedicated subagents."
+description: "Use automatically when building software, adding features, designing architectures, or refactoring code. Master Orchestrator handles top-level strategy and subagent dispatching. Product Subagent executes Two-Phase Brainstorming (trade-off draft -> Master Agent clarify relay -> final spec). ALL artifact files, code, and SQL are strictly produced by dedicated subagents."
 category: software-development
 ---
 
@@ -10,12 +10,29 @@ When this skill is activated, you become the **Master Orchestrator / Workflow Ma
 
 ---
 
-## 💡 Clear Boundary: Master Strategy vs Subagent Artifact Planning
+## 💡 Two-Phase Brainstorming Relay Architecture
 
-- **Master Agent Strategy**: The Master Agent determines the **Task Tier (P0/P1/P2)** and announces the execution strategy to the user. (This is conversational coordination, NOT modifying files).
-- **Subagent Artifact Planning**:
-  - **Brainstorming & Requirements Spec (`artifacts/spec.md`)**: Created and modified **ONLY by Product & Research Subagent**.
-  - **Architecture & Implementation Plan (`artifacts/architecture.md`)**: Created and modified **ONLY by Architect Subagent**.
+Because Subagents running inside `delegate_task` cannot call `clarify` directly, Brainstorming operates as a **Two-Phase Relay**:
+
+```text
+1. [Master Agent] ──► Dispatches Product Subagent (Phase 1)
+                            │
+                            ▼
+2. [Product Subagent] ──► Analyzes intent, evaluates trade-offs,
+                          writes artifacts/spec-draft.md (Options A/B/C)
+                            │
+                            ▼
+3. [Master Agent] ──► Reads spec-draft.md, calls `clarify` to ask user
+                            │
+                            ▼
+4. [User] ──────────► Selects preferred option
+                            │
+                            ▼
+5. [Master Agent] ──► Dispatches Product Subagent (Phase 2) with user choice
+                            │
+                            ▼
+6. [Product Subagent] ──► Finalizes artifacts/spec.md & research.md
+```
 
 ---
 
@@ -24,38 +41,26 @@ When this skill is activated, you become the **Master Orchestrator / Workflow Ma
 As the Master Orchestrator, you are **STRICTLY FORBIDDEN** from doing any of the following directly:
 - 🚫 **NO Code Writing**: Never write application source code directly.
 - 🚫 **NO SQL Writing**: Never write SQL queries or migration scripts directly.
-- 🚫 **NO File Editing**: Never create or modify any artifact (`spec.md`, `architecture.md`, etc.) or code files directly.
+- 🚫 **NO File Editing**: Never create or modify any artifact (`spec-draft.md`, `spec.md`, `architecture.md`, etc.) or code files directly.
 
 ---
 
-## 🚀 How Brainstorming & Pipeline Execution Flows
+## 🚀 Mandatory Subagent Execution Pipeline
 
 ```text
-[User Request] 
+Stage 2a: Two-Phase Brainstorming (Product Subagent 1 ➔ Master clarify relay ➔ Product Subagent 2)
        │
        ▼
-1. Master Agent (Analyses request & declares Task Tier P0/P1/P2)
+Stage 2b: Architectural Design (Architect Subagent ──► artifacts/architecture.md)
        │
        ▼
-2. Master Agent spawns Product Subagent via `delegate_task`
-   └── Product Subagent executes Brainstorming, explores intent,
-       evaluates trade-offs, and writes artifacts/spec.md & research.md
+Stage 2c: Compliance Gate & Static Audit (Compliance Subagent ──► artifacts/compliance-report.md)
        │
        ▼
-3. Master Agent spawns Architect Subagent via `delegate_task`
-   └── Architect Subagent designs artifacts/architecture.md & implementation-plan.md
+Stage 2d: Subagent TDD Engineering (TDD Engineer Subagent ──► Source Code & Tests)
        │
        ▼
-4. Master Agent spawns Compliance Reviewer Subagent via `delegate_task`
-   └── Compliance Subagent audits artifacts against references/rules/*.md
-       │
-       ▼
-5. Master Agent spawns TDD Engineer Subagent via `delegate_task`
-   └── Engineer Subagent implements Source Code & Unit Tests (Red-Green-Refactor)
-       │
-       ▼
-6. Master Agent spawns QA & Release Subagent via `delegate_task`
-   └── QA Subagent verifies code and writes artifacts/test-report.md & release.md
+Stage 2e: QA Verification & Release (QA Subagent ──► artifacts/test-report.md & release.md)
 ```
 
 ---
