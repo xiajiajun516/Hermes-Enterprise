@@ -1,0 +1,12 @@
+name: Feature Request
+description: Suggest an idea or enhancement for this profile
+title: "[FEAT]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature Description
+      description: Describe the agent role, rule, or artifact template you would like to see added.
+    validations:
+      required: true
