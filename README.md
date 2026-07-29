@@ -1,90 +1,45 @@
-# 🚀 Hermes Enterprise Profile (Software Engineering AI Team)
+# 🚀 Software Engineering AI Team Skill for Hermes
 
-An enterprise-grade, artifact-driven, self-evolving AI software engineering team profile distribution for **Hermes Agent**.
+An enterprise-grade, artifact-driven, self-evolving AI software engineering team **Skill** for **Hermes Agent**.
 
 [中文架构方案 (Chinese Specification)](./PLAN.md)
 
 ---
 
-## ⚡ Quick Install
+## ⚡ Quick Start: Load as a Skill
 
-You can install this profile distribution directly into your Hermes Agent with a single command:
+This project is packaged as a **universal Skill** that can be loaded into any Hermes session (including your `default` session) without needing to configure or switch profiles!
 
+### Method 1: Preload via CLI
 ```bash
-hermes profile install https://github.com/xiajiajun516/hermes-enterprise-profile
+hermes -s software-engineering-team
 ```
 
-Or run directly from a local clone:
-
-```bash
-hermes profile install .
-```
-
-After installation, start using this profile:
-
-```bash
-hermes -p software-engineering-team chat
-```
+### Method 2: Load in any Active Hermes Session
+In your active Hermes chat window, simply request:
+> *"Load skill software-engineering-team and build a user authentication service for this repository."*
 
 ---
 
-## ⚙️ Model & Provider Configuration
+## 🌟 Core Highlights
 
-Because every developer uses different LLM providers (OpenAI, Anthropic, DeepSeek, Local/Custom Endpoints), this profile does **not** hardcode any model settings. Configure your own model after installation:
-
-### 1. Interactive Model Picker
-```bash
-hermes -p software-engineering-team model
-```
-
-### 2. Using Custom / Local OpenAI-Compatible Endpoints
-If you use a custom endpoint (e.g. `http://localhost:3000/v1` or custom API proxies):
-
-```bash
-# Set provider to custom
-hermes -p software-engineering-team config set model.provider custom
-
-# Set base URL
-hermes -p software-engineering-team config set model.base_url http://localhost:3000/v1
-
-# Set default model name
-hermes -p software-engineering-team config set model.default your-model-name
-```
-
----
-
-## 🧠 Memory & Plugin Configuration
-
-This profile is designed to work seamlessly with both Hermes built-in memory and advanced external memory plugins.
-
-### 1. Using `scope-recall-hermes` Plugin (Recommended)
-`scope-recall-hermes` provides domain-isolated, hybrid lexical/vector memory across multiple scopes:
-
-- **`target="project"`**: Stores project-specific architectural rules, entity maps, and code standards (isolated per repository).
-- **`target="ops"`**: Stores CI/CD parameters, server IPs, and deployment strategies.
-- **`target="user"`**: Stores team/user coding style preferences.
-- **`target="memory"`**: Stores general pitfalls and technical post-mortems.
-
-To configure Scope Recall in this profile:
-```bash
-hermes -p software-engineering-team config set memory.provider scope-recall
-```
-
-### 2. Adapting Other Memory Providers
-If you use standard built-in memory or other custom memory plugins (e.g., `mem0`, `zep`, or built-in file memory):
-- The profile's **Minimal Context Policy** will automatically route artifacts to subagents without flooding memory.
-- Standard memories will continue to store declarative facts without interfering with temporary project artifacts (`spec.md`, `architecture.md`).
-
----
-
-## 🌟 Core Architecture
-
-- **Single Profile Architecture**: Multi-agent organization within a single unified profile (`software-engineering-team`).
+- **Zero Configuration**: Inherits your active session's LLM provider, API keys, and toolchain directly.
 - **Artifact-Driven Collaboration**: Eliminates dependency on chat history by producing durable Markdown/Code artifacts (`spec.md`, `architecture.md`, `compliance-report.md`, etc.).
-- **Minimal Context Policy**: Strictly limits subagent contexts to essential artifacts, reducing token consumption and interference.
+- **Minimal Context Policy**: Strictly limits subagent contexts to essential artifacts, reducing token consumption.
 - **Compliance Gate & Self-Correction Loop**: Automatically audits specifications against design/tech standards (`rules/*.md`) before coding begins.
-- **Self-Evolving Governance**: Features a `Rule Manager Agent` that updates rules and Scope Recall memory (`project` / `ops` scopes) based on post-mortems and user directives.
+- **Self-Evolving Governance**: Features a `Rule Manager Agent` that updates rules and Scope Recall memory (`project` / `ops` target scopes) based on post-mortems and user directives.
 - **Approval Gates**: High-risk operations (deletions, DB migrations, deployments) require human confirmation via Hermes `clarify`.
+
+---
+
+## 🧠 Memory & Plugin Integration
+
+### Scope Recall Integration (Recommended)
+When paired with the `scope-recall-hermes` plugin, this skill automatically stores and retrieves domain-isolated memories:
+- **`target="project"`**: Stores repository architecture conventions, module maps, and entity rules.
+- **`target="ops"`**: Stores CI/CD parameters, server IPs, and deployment strategies.
+- **`target="user"`**: Stores personal/team code style preferences.
+- **`target="memory"`**: Stores general technical pitfalls and post-mortem lessons.
 
 ---
 
@@ -92,9 +47,9 @@ If you use standard built-in memory or other custom memory plugins (e.g., `mem0`
 
 ```text
 hermes-enterprise-profile/
-├── distribution.yaml       # Hermes Profile Distribution Manifest
+├── SKILL.md                # Skill Manifest & Entry Point
 ├── PLAN.md                 # Complete Architecture & Plan Specification (Chinese)
-├── README.md               # Overview, Setup & Memory Guide
+├── README.md               # Overview & Skill Usage Guide
 ├── LICENSE                 # MIT License
 ├── agents/                 # Specialized Agent Definitions & Prompts
 │   ├── 01-workflow-manager.md
