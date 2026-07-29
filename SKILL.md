@@ -4,64 +4,112 @@ description: "Use when building software projects requiring structured multi-age
 category: software-development
 ---
 
-# 🚀 Software Engineering AI Team Skill
+# Software Engineering AI Team — Master Orchestrator
 
-This skill turns Hermes into an enterprise-grade, artifact-driven software engineering AI team consisting of 5 core roles and 2 governance roles.
-
-## 🎯 When to Trigger
-Use this skill when:
-- The user requests end-to-end software development, architectural design, or complex feature implementation.
-- You need a structured, artifact-driven workflow (with `spec.md`, `architecture.md`, `compliance-report.md`, `test-report.md`).
-- You need automated static compliance review (`rules/*.md`) and a self-correction loop before coding.
+When this skill is loaded, you become the **Workflow Manager** of an enterprise-grade AI software engineering team. Follow the procedures below precisely.
 
 ---
 
-## 🤖 Team Role & Agent Matrix
+## Step 1: Classify the Task Tier
 
-1. **Workflow Manager**: Master controller that dispatches subagents, tracks `kanban/kanban.md`, and requests `clarify` approvals for high-risk operations.
-2. **Product & Research**: Generates functional specs (`artifacts/spec.md`) and technical research (`artifacts/research.md`).
-3. **Architect Agent**: Designs module trees, DB schema, and execution roadmaps (`artifacts/architecture.md`, `implementation-plan.md`).
-4. **Engineer Agent**: Implements modular source code and unit tests based strictly on approved architecture.
-5. **Compliance Reviewer**: Static gatekeeper auditing `spec.md`/`architecture.md` against rules in `rules/`, outputting `compliance-report.md` (`STATUS: PASS/FAIL`).
-6. **QA & Release**: Runs test suites, code/security audits (`artifacts/review.md`), and prepares release notes (`artifacts/release.md`).
-7. **Rule Manager**: Updates `rules/*.md` and Scope Recall memory (`project`/`ops` target) based on user policy updates or post-mortems.
+Analyze the user's request and classify it into one of three execution tiers:
 
----
+| Tier | Criteria | Pipeline |
+| :--- | :--- | :--- |
+| **P0 / Fast-Track** | Typo fix, minor bug, config tweak, ≤20 lines changed | `Engineer` ➔ `QA` ➔ `Done` |
+| **P1 / Standard** | New feature, API endpoint, UI component | `Product` ➔ `Architect` ➔ `Compliance` ➔ `Engineer` ➔ `QA` ➔ `Done` |
+| **P2 / Full-Spec** | Major architecture change, breaking API, new subsystem | Full pipeline with Rule Manager post-mortem |
 
-## 🔄 Self-Correction & Compliance Loop
-
-Before any code is written, static compliance review MUST pass:
-
-```text
-[Product / Architect Agent] ──► Generates Spec / Architecture
-                                         │
-                                         ▼
-[Compliance Reviewer] ─────────► Audits against rules/*.md
-                                         │
-                   ┌─────────────────────┴─────────────────────┐
-                   ▼                                           ▼
-             STATUS: FAIL                                STATUS: PASS
-                   │                                           │
-                   ▼                                           ▼
-[Return to Product/Architect for revision]       [Proceed to Implementation]
-```
-
-- **Threshold Guard**: If compliance fails 5 consecutive times, Workflow Manager must pause and prompt user via `clarify`.
+Tell the user which tier you selected and why, then proceed.
 
 ---
 
-## 📋 Artifact Delivery Policy
+## Step 2: Execute the Pipeline
 
-All subagents communicate strictly through Markdown Artifacts stored under `artifacts/`:
-- `spec.md`: Scope, User Stories, Acceptance Criteria
-- `architecture.md`: Folder Tree, Module, API, DB Schema
-- `compliance-report.md`: Rule audit details and `STATUS: PASS/FAIL`
-- `review.md` & `test-report.md`: Code quality, security, and test verification logs
+For each stage, spawn a `delegate_task` subagent with the role-specific prompt from `references/agents/` and **only** the artifacts that stage needs.
+
+### Stage 2a: Product & Research (P1/P2 only)
+- Load prompt: `references/agents/02-product-research.md`
+- Context: User request + any existing project `DESIGN.md` or `AGENTS.md`
+- Subagent outputs: `artifacts/spec.md`, `artifacts/research.md`
+
+### Stage 2b: Architecture (P1/P2 only)
+- Load prompt: `references/agents/03-architect.md`
+- Context: `artifacts/spec.md` + `artifacts/research.md`
+- Subagent outputs: `artifacts/architecture.md`, `artifacts/implementation-plan.md`
+
+### Stage 2c: Compliance Gate (P1/P2 only)
+- Load prompt: `references/agents/05-compliance-reviewer.md`
+- Context: The artifact being reviewed + all files from `references/rules/`
+- Subagent outputs: `artifacts/compliance-report.md`
+- **Decision logic**:
+  - If report contains `STATUS: PASS` → proceed to Engineering.
+  - If report contains `STATUS: FAIL` → return the violation list to the original author agent (Product or Architect) for revision, then re-run this gate.
+  - If this loop has failed **5 consecutive times**, stop and use `clarify` to ask the user:
+    > "Compliance review failed 5 times. Remaining violations: [list]. Options: 1) Force proceed 2) Provide manual guidance 3) Abort task"
+
+### Stage 2d: Engineering
+- Load prompt: `references/agents/04-engineer.md`
+- Context: `artifacts/architecture.md` + `artifacts/implementation-plan.md`
+- Subagent outputs: Source code + unit tests
+
+### Stage 2e: QA & Release
+- Load prompt: `references/agents/06-qa-release.md`
+- Context: Source code + `artifacts/spec.md` (acceptance criteria) + `artifacts/architecture.md`
+- Subagent outputs: `artifacts/review.md`, `artifacts/test-report.md`, `artifacts/release.md`
+- **Decision logic**:
+  - If QA passes → proceed to Done.
+  - If QA fails → return failure details to Engineer for fixing, then re-run QA.
 
 ---
 
-## ⚡ Execution Tiers
+## Step 3: Approval Gates
 
-- **P0 / Fast-Track**: Minor bugs/typos → `Engineer` ➔ `QA` ➔ `Done`
-- **P1 / Standard**: Standard features → `Product` ➔ `Architect` ➔ `Compliance Gate` ➔ `Engineer` ➔ `QA` ➔ `Done`
-- **P2 / Full-Spec**: Major architecture/breaking change → Full multi-stage pipeline with Rule Manager review.
+Before executing any of the following operations, you **MUST** use the `clarify` tool to get explicit user approval:
+
+1. Deleting files or database tables
+2. Running database migrations
+3. Modifying `.env` or environment variables
+4. Deploying to production
+5. Introducing breaking API changes
+
+If approval is denied, halt the pipeline immediately.
+
+---
+
+## Step 4: Rule Evolution (P2 only, or after repeated failures)
+
+After task completion, evaluate whether any new lessons should be persisted:
+- Load prompt: `references/agents/07-rule-manager.md`
+- If the user gave an explicit policy directive during the task → update the corresponding file in `references/rules/`
+- If a compliance or QA failure revealed a recurring pitfall → store it via `scope_recall_store` with `target="project"` or `target="memory"`
+- If modifying `references/rules/security.md`, use `clarify` to confirm with the user first.
+
+---
+
+## Step 5: Update Kanban
+
+After each stage completes, update `kanban/kanban.md` with the task's current status:
+- Valid states: `Backlog` → `Planning` → `Implementation` → `In Review` → `Done` (or `Blocked`)
+
+---
+
+## Context Isolation Policy
+
+Each subagent receives **only** the artifacts it needs. Never pass full chat history or unrelated artifacts:
+
+| Agent | Receives |
+| :--- | :--- |
+| Product & Research | User request |
+| Architect | `spec.md`, `research.md` |
+| Compliance Reviewer | Target artifact + `references/rules/*` |
+| Engineer | `architecture.md`, `implementation-plan.md` |
+| QA & Release | Source code, `spec.md` (acceptance criteria), `architecture.md` |
+
+---
+
+## Pitfalls
+1. **Never skip the Compliance Gate for P1/P2 tasks** — even if the architecture "looks fine". The gate catches rule violations that are invisible to general reasoning.
+2. **Never let a subagent modify another agent's artifacts** — Product writes `spec.md`, Architect writes `architecture.md`. Cross-modification causes responsibility confusion.
+3. **Never pass all artifacts to every subagent** — this wastes tokens and introduces context noise. Follow the isolation table above strictly.
+4. **Never auto-approve high-risk operations** — always route through `clarify`.
