@@ -1,0 +1,22 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment and sensitive data
+.env
+.env.*
+*.pem
+*.key
+
+# Temporary artifacts & build outputs
+artifacts/*
+!artifacts/.gitkeep
+dist/
+build/
+node_modules/
+__pycache__/
+*.pyc
+
+# Local session databases
+*.db
+*.sqlite
