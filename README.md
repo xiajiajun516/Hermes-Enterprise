@@ -2,7 +2,7 @@
 
 An enterprise-grade, artifact-driven, self-evolving AI software engineering team profile distribution for **Hermes Agent**.
 
-[中文文档 (Chinese Version)](./PLAN.md)
+[中文架构方案 (Chinese Specification)](./PLAN.md)
 
 ---
 
@@ -28,7 +28,56 @@ hermes -p software-engineering-team chat
 
 ---
 
-## 🌟 Core Features
+## ⚙️ Model & Provider Configuration
+
+Because every developer uses different LLM providers (OpenAI, Anthropic, DeepSeek, Local/Custom Endpoints), this profile does **not** hardcode any model settings. Configure your own model after installation:
+
+### 1. Interactive Model Picker
+```bash
+hermes -p software-engineering-team model
+```
+
+### 2. Using Custom / Local OpenAI-Compatible Endpoints
+If you use a custom endpoint (e.g. `http://localhost:3000/v1` or custom API proxies):
+
+```bash
+# Set provider to custom
+hermes -p software-engineering-team config set model.provider custom
+
+# Set base URL
+hermes -p software-engineering-team config set model.base_url http://localhost:3000/v1
+
+# Set default model name
+hermes -p software-engineering-team config set model.default your-model-name
+```
+
+---
+
+## 🧠 Memory & Plugin Configuration
+
+This profile is designed to work seamlessly with both Hermes built-in memory and advanced external memory plugins.
+
+### 1. Using `scope-recall-hermes` Plugin (Recommended)
+`scope-recall-hermes` provides domain-isolated, hybrid lexical/vector memory across multiple scopes:
+
+- **`target="project"`**: Stores project-specific architectural rules, entity maps, and code standards (isolated per repository).
+- **`target="ops"`**: Stores CI/CD parameters, server IPs, and deployment strategies.
+- **`target="user"`**: Stores team/user coding style preferences.
+- **`target="memory"`**: Stores general pitfalls and technical post-mortems.
+
+To configure Scope Recall in this profile:
+```bash
+hermes -p software-engineering-team config set memory.provider scope-recall
+```
+
+### 2. Adapting Other Memory Providers
+If you use standard built-in memory or other custom memory plugins (e.g., `mem0`, `zep`, or built-in file memory):
+- The profile's **Minimal Context Policy** will automatically route artifacts to subagents without flooding memory.
+- Standard memories will continue to store declarative facts without interfering with temporary project artifacts (`spec.md`, `architecture.md`).
+
+---
+
+## 🌟 Core Architecture
 
 - **Single Profile Architecture**: Multi-agent organization within a single unified profile (`software-engineering-team`).
 - **Artifact-Driven Collaboration**: Eliminates dependency on chat history by producing durable Markdown/Code artifacts (`spec.md`, `architecture.md`, `compliance-report.md`, etc.).
@@ -44,8 +93,8 @@ hermes -p software-engineering-team chat
 ```text
 hermes-enterprise-profile/
 ├── distribution.yaml       # Hermes Profile Distribution Manifest
-├── PLAN.md                 # Complete Architecture & Plan Specification
-├── README.md               # Overview & Getting Started Guide
+├── PLAN.md                 # Complete Architecture & Plan Specification (Chinese)
+├── README.md               # Overview, Setup & Memory Guide
 ├── LICENSE                 # MIT License
 ├── agents/                 # Specialized Agent Definitions & Prompts
 │   ├── 01-workflow-manager.md
