@@ -73,6 +73,22 @@ Stage 2g: Kanban Status Update (Subagent updates kanban/kanban.md ──► Done
 
 ---
 
+## 📋 Subagent Dispatch Protocol (Mandatory Context Injection)
+
+Subagents in `delegate_task` run in isolated contexts and **DO NOT** inherit Master Agent skills or memory.
+Whenever Master Agent calls `delegate_task`, it **MUST** load and inject the corresponding Agent Prompt (`references/agents/*.md`), rules, and templates into the `context` argument:
+
+| Stage | Subagent Target | Mandatory `context` Injection Content |
+| :--- | :--- | :--- |
+| **Stage 2a** | Product Subagent | Content of `references/agents/02-product-research.md` + `templates/spec-template.md` |
+| **Stage 2b** | Architect Subagent | Content of `references/agents/03-architect.md` + `templates/architecture-template.md` + `artifacts/spec.md` |
+| **Stage 2c** | Compliance Reviewer | Content of `references/agents/05-compliance-reviewer.md` + All files in `references/rules/` + Target Artifacts |
+| **Stage 2d** | TDD Engineer | Content of `references/agents/04-engineer.md` + `artifacts/architecture.md` + `artifacts/implementation-plan.md` |
+| **Stage 2e** | QA & Release | Content of `references/agents/06-qa-release.md` + `artifacts/spec.md` + Acceptance Criteria |
+| **Stage 2f** | Rule Manager | Content of `references/agents/07-rule-manager.md` + Post-Mortem Logs |
+
+---
+
 ## 🛡️ Human Approval Gates (`clarify`)
 
 The Master Agent MUST pause and use `clarify` before allowing Subagents to execute:
