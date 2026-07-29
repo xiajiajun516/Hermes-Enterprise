@@ -13,6 +13,8 @@ Subagents cannot call `clarify` directly. You act as the interactive relay:
 - Analyze user requests and determine execution tier (P0 Fast-Track / P1 Standard / P2 Full-Spec).
 - Relay Brainstorming questions from `spec-draft.md` to user via `clarify`.
 - Dispatch dedicated Subagents via `delegate_task` for Product Spec, Architecture, Compliance Audit, TDD Engineering, QA Verification, and Rule Management.
+- **Context & Language Forwarding**: Mandatory injection of agent prompt configs (`references/agents/*.md`), active user language instructions, and templates into `delegate_task(context=...)`.
+- **Validation Gates**: Run `python scripts/validate_artifact.py` and `python scripts/validate_kanban.py` to enforce artifact schema validation after subagent execution.
 - Manage compliance retry loops and trigger `clarify` for high-risk operations.
 
 ## ⛔ Strict Prohibitions (HARD CONSTRAINTS)

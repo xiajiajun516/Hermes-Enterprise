@@ -56,7 +56,7 @@ Stage 2a: Two-Phase Brainstorming (Product Subagent 1 ➔ Master clarify relay �
 Stage 2b: Architectural Design (Architect Subagent using templates/architecture-template.md ──► artifacts/architecture.md)
        │
        ▼
-Stage 2c: Compliance Gate & Static Audit (Compliance Subagent using templates/compliance-report-template.md ──► artifacts/compliance-report.md)
+Stage 2c: Compliance Gate & Static Audit (Compliance Subagent ──► Master runs `python scripts/validate_artifact.py`)
        │
        ▼
 Stage 2d: Subagent TDD Engineering (TDD Engineer Subagent ──► Source Code & Tests)
@@ -68,7 +68,7 @@ Stage 2e: QA Verification & Release (QA Subagent ──► artifacts/test-report
 Stage 2f: Rule Evolution & Memory Persistence (Rule Manager Subagent ──► references/rules/ & Scope Recall)
        │
        ▼
-Stage 2g: Kanban Status Update (Subagent updates kanban/kanban.md ──► Done)
+Stage 2g: Kanban Status Update (Subagent updates kanban/kanban.md ──► Master runs `python scripts/validate_kanban.py`)
 ```
 
 ---
@@ -76,16 +76,20 @@ Stage 2g: Kanban Status Update (Subagent updates kanban/kanban.md ──► Done
 ## 📋 Subagent Dispatch Protocol (Mandatory Context Injection)
 
 Subagents in `delegate_task` run in isolated contexts and **DO NOT** inherit Master Agent skills or memory.
-Whenever Master Agent calls `delegate_task`, it **MUST** load and inject the corresponding Agent Prompt (`references/agents/*.md`), rules, and templates into the `context` argument:
+Whenever Master Agent calls `delegate_task`, it **MUST** enforce the following rules:
 
-| Stage | Subagent Target | Mandatory `context` Injection Content |
-| :--- | :--- | :--- |
-| **Stage 2a** | Product Subagent | Content of `references/agents/02-product-research.md` + `templates/spec-template.md` |
-| **Stage 2b** | Architect Subagent | Content of `references/agents/03-architect.md` + `templates/architecture-template.md` + `artifacts/spec.md` |
-| **Stage 2c** | Compliance Reviewer | Content of `references/agents/05-compliance-reviewer.md` + All files in `references/rules/` + Target Artifacts |
-| **Stage 2d** | TDD Engineer | Content of `references/agents/04-engineer.md` + `artifacts/architecture.md` + `artifacts/implementation-plan.md` |
-| **Stage 2e** | QA & Release | Content of `references/agents/06-qa-release.md` + `artifacts/spec.md` + Acceptance Criteria |
-| **Stage 2f** | Rule Manager | Content of `references/agents/07-rule-manager.md` + Post-Mortem Logs |
+1. **Language Forwarding**: Always include explicit language instructions in `context` matching the user's input language (e.g., *"Respond in Chinese"* or *"Use Chinese for all generated markdown text"*).
+2. **Context Injection**: Must load and inject the corresponding Agent Prompt (`references/agents/*.md`), rules, and templates into the `context` argument:
+
+| Stage | Subagent Target | Mandatory `context` Injection Content | Validation Gate Command |
+| :--- | :--- | :--- | :--- |
+| **Stage 2a** | Product Subagent | Content of `references/agents/02-product-research.md` + `templates/spec-template.md` | `python scripts/validate_artifact.py artifacts/spec.md` |
+| **Stage 2b** | Architect Subagent | Content of `references/agents/03-architect.md` + `templates/architecture-template.md` + `artifacts/spec.md` | `python scripts/validate_artifact.py artifacts/architecture.md` |
+| **Stage 2c** | Compliance Reviewer | Content of `references/agents/05-compliance-reviewer.md` + All files in `references/rules/` + Target Artifacts | `python scripts/validate_artifact.py artifacts/compliance-report.md` |
+| **Stage 2d** | TDD Engineer | Content of `references/agents/04-engineer.md` + `artifacts/architecture.md` + `artifacts/implementation-plan.md` | Unit Test Execution Logs |
+| **Stage 2e** | QA & Release | Content of `references/agents/06-qa-release.md` + `artifacts/spec.md` + Acceptance Criteria | Test Report Inspection |
+| **Stage 2f** | Rule Manager | Content of `references/agents/07-rule-manager.md` + Post-Mortem Logs | `scope_recall_store` / Rule File Check |
+| **Stage 2g** | Kanban Subagent | Task status update details | `python scripts/validate_kanban.py kanban/kanban.md` |
 
 ---
 

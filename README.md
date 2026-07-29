@@ -47,6 +47,8 @@ Once installed, simply invoke the skill in any active Hermes conversation:
 - **Zero Configuration**: Inherits your active session's LLM provider, API keys, and toolchain directly.
 - **Artifact-Driven Collaboration**: Eliminates dependency on chat history by producing durable Markdown/Code artifacts (`spec.md`, `architecture.md`, `compliance-report.md`, etc.).
 - **Minimal Context Policy**: Strictly limits subagent contexts to essential artifacts, reducing token consumption.
+- **Subagent Dispatch Protocol**: Enforces mandatory injection of prompt configs (`references/agents/*.md`), rules, templates, and language forwarding instructions into `delegate_task(context=...)`.
+- **Automated Validation Gates**: Integrates Python scripts (`validate_artifact.py`, `validate_kanban.py`) into execution pipelines for schema enforcement.
 - **Compliance Gate & Self-Correction Loop**: Automatically audits specifications against design/tech standards (`references/rules/*.md`) before coding begins.
 - **Self-Evolving Governance**: Features a `Rule Manager Agent` that updates rules and Scope Recall memory (`project` / `ops` target scopes) based on post-mortems and user directives.
 - **Approval Gates**: High-risk operations (deletions, DB migrations, deployments) require human confirmation via Hermes `clarify`.

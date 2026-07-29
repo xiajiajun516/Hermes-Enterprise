@@ -77,7 +77,8 @@ Memory & Rules 架构：
 ```
 
 ### 规则与记忆检索原则：
-* **门控注入 (Conservative Gating)**：在调用子 Agent (`delegate_task`) 时，仅按需传入对应实体的上下文片段（如 100~300 字）或特定的 `rules/` 路径，严禁全量灌入。
+* **门控与 Context 注入 (Subagent Dispatch Protocol)**：在调用子 Agent (`delegate_task`) 时，Master 必须将 `references/agents/*.md` 提示词配置、关联模板/规则以及语言指令注入 `context` 参数，确保隔离的 Subagent 严格遵循 Skill 规范。
+* **脚本硬门禁 (Python Validation Gate)**：在产物生成后，Master 必须调用 `scripts/validate_artifact.py` 与 `scripts/validate_kanban.py` 进行硬性 Schema 校验。
 * **时效控制 (`freshness`)**：对带有版本号的配置或依赖规范标记 TTL，过期自动拉起重新校验。
 
 ---
