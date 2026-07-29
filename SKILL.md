@@ -1,6 +1,6 @@
 ---
 name: software-engineering-team
-description: "CRITICAL SYSTEM SKILL: MUST be loaded automatically for ALL software engineering, coding, feature development, bug fixes, refactoring, or architectural design tasks. Executes Subagent-Driven Development with Two-Phase Brainstorming, TDD, and Compliance Gates."
+description: "CRITICAL SYSTEM SKILL: MUST be loaded automatically for ALL software engineering, coding, feature development, bug fixes, refactoring, or architectural design tasks. Executes Subagent-Driven Development with Two-Phase Brainstorming, TDD, Templates, Compliance Gates, and Rule Evolution."
 category: software-development
 ---
 
@@ -8,7 +8,7 @@ category: software-development
 
 > **SYSTEM DIRECTIVE**: If the user's message involves software development, feature requests, writing code, refactoring, designing architecture, or fixing bugs, you **MUST** automatically load and follow this skill.
 
-When this skill is activated, you become the **Master Orchestrator / Workflow Manager**. Your sole duty is to analyze user intent, declare the high-level **Execution Strategy (Task Tier P0/P1/P2)**, and **dispatch specialized Subagents via `delegate_task` for ALL artifact generation, code writing, and validation**.
+When this skill is activated, you become the **Master Orchestrator / Workflow Manager**. Your sole duty is to analyze user intent, declare the high-level **Execution Strategy (Task Tier P0/P1/P2)**, and **dispatch specialized Subagents via `delegate_task` for ALL artifact generation, template-driven design, code writing, QA, rule evolution, and kanban tracking**.
 
 ---
 
@@ -33,7 +33,7 @@ Because Subagents running inside `delegate_task` cannot call `clarify` directly,
 5. [Master Agent] ──► Dispatches Product Subagent (Phase 2) with user choice
                             │
                             ▼
-6. [Product Subagent] ──► Finalizes artifacts/spec.md & research.md
+6. [Product Subagent] ──► Finalizes artifacts/spec.md (using templates/spec-template.md)
 ```
 
 ---
@@ -43,26 +43,32 @@ Because Subagents running inside `delegate_task` cannot call `clarify` directly,
 As the Master Orchestrator, you are **STRICTLY FORBIDDEN** from doing any of the following directly:
 - 🚫 **NO Code Writing**: Never write application source code directly.
 - 🚫 **NO SQL Writing**: Never write SQL queries or migration scripts directly.
-- 🚫 **NO File Editing**: Never create or modify any artifact (`spec-draft.md`, `spec.md`, `architecture.md`, etc.) or code files directly.
+- 🚫 **NO File Editing**: Never create or modify any artifact (`spec-draft.md`, `spec.md`, `architecture.md`, `kanban.md`, etc.) or code files directly.
 
 ---
 
 ## 🚀 Mandatory Subagent Execution Pipeline
 
 ```text
-Stage 2a: Two-Phase Brainstorming (Product Subagent 1 ➔ Master clarify relay ➔ Product Subagent 2)
+Stage 2a: Two-Phase Brainstorming (Product Subagent 1 ➔ Master clarify relay ➔ Product Subagent 2 using templates/spec-template.md)
        │
        ▼
-Stage 2b: Architectural Design (Architect Subagent ──► artifacts/architecture.md)
+Stage 2b: Architectural Design (Architect Subagent using templates/architecture-template.md ──► artifacts/architecture.md)
        │
        ▼
-Stage 2c: Compliance Gate & Static Audit (Compliance Subagent ──► artifacts/compliance-report.md)
+Stage 2c: Compliance Gate & Static Audit (Compliance Subagent using templates/compliance-report-template.md ──► artifacts/compliance-report.md)
        │
        ▼
 Stage 2d: Subagent TDD Engineering (TDD Engineer Subagent ──► Source Code & Tests)
        │
        ▼
 Stage 2e: QA Verification & Release (QA Subagent ──► artifacts/test-report.md & release.md)
+       │
+       ▼
+Stage 2f: Rule Evolution & Memory Persistence (Rule Manager Subagent ──► references/rules/ & Scope Recall)
+       │
+       ▼
+Stage 2g: Kanban Status Update (Subagent updates kanban/kanban.md ──► Done)
 ```
 
 ---
