@@ -1,14 +1,36 @@
-# 🚀 Hermes Enterprise Profile Plan (Software Engineering AI Team)
+# 🚀 Hermes Enterprise Profile (Software Engineering AI Team)
 
-An enterprise-grade, artifact-driven, self-evolving AI software engineering team template designed for **Hermes Agent**.
+An enterprise-grade, artifact-driven, self-evolving AI software engineering team profile distribution for **Hermes Agent**.
 
 [中文文档 (Chinese Version)](./PLAN.md)
 
 ---
 
+## ⚡ Quick Install
+
+You can install this profile distribution directly into your Hermes Agent with a single command:
+
+```bash
+hermes profile install https://github.com/xiajiajun516/hermes-enterprise-profile
+```
+
+Or run directly from a local clone:
+
+```bash
+hermes profile install .
+```
+
+After installation, start using this profile:
+
+```bash
+hermes -p software-engineering-team chat
+```
+
+---
+
 ## 🌟 Core Features
 
-- **Single Profile Architecture**: Multi-agent organization within a single unified profile (`Software Engineering Team`).
+- **Single Profile Architecture**: Multi-agent organization within a single unified profile (`software-engineering-team`).
 - **Artifact-Driven Collaboration**: Eliminates dependency on chat history by producing durable Markdown/Code artifacts (`spec.md`, `architecture.md`, `compliance-report.md`, etc.).
 - **Minimal Context Policy**: Strictly limits subagent contexts to essential artifacts, reducing token consumption and interference.
 - **Compliance Gate & Self-Correction Loop**: Automatically audits specifications against design/tech standards (`rules/*.md`) before coding begins.
@@ -21,6 +43,7 @@ An enterprise-grade, artifact-driven, self-evolving AI software engineering team
 
 ```text
 hermes-enterprise-profile/
+├── distribution.yaml       # Hermes Profile Distribution Manifest
 ├── PLAN.md                 # Complete Architecture & Plan Specification
 ├── README.md               # Overview & Getting Started Guide
 ├── LICENSE                 # MIT License
@@ -38,7 +61,7 @@ hermes-enterprise-profile/
 │   └── security.md
 ├── artifacts/              # Standard Output Artifacts Location
 ├── kanban/                 # Task Pipeline Kanban Tracking (`kanban.md`)
-└── scripts/                # Helper Scripts
+└── scripts/                # Validation & Helper Scripts
 ```
 
 ---
@@ -72,14 +95,6 @@ hermes-enterprise-profile/
                    ▼                                           ▼
 [Return to Product/Architect for revision]       [Proceed to Implementation]
 ```
-
----
-
-## 🚀 How to Use
-
-1. Clone or copy this repository into your Hermes profile directory or workspace.
-2. Customize the global rules under `rules/` (`design-system.md`, `tech-stack.md`, `security.md`) to match your team standards.
-3. Start interacting with Hermes using the **Workflow Manager** as the entry point!
 
 ---
 
