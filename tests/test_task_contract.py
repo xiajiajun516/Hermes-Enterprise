@@ -107,6 +107,24 @@ class ContractTests(unittest.TestCase):
             contract["inputs"][0]["sha256"] = actual
             self.assertTrue(authorized_input(contract, root, relative)["authorized"])
 
+    def test_template_and_master_skill_encode_complete_contract_prompt(self):
+        template = Path("templates/task-contract-template.md").read_text(encoding="utf-8")
+        master = Path("SKILL.md").read_text(encoding="utf-8")
+        self.assertTrue(template.startswith("---\n"))
+        for heading in (
+            "Run Identity", "Goal & Scope", "Source of Truth", "Environment SOP",
+            "Artifact I/O Contract", "Checksum / Verification", "Hard Prohibitions",
+            "Final Report Protocol",
+        ):
+            self.assertIn(f"## {heading}", template)
+            self.assertIn(heading, master)
+        for label in ("goal:", "scope:", "source:", "command:", "inputs:", "outputs:",
+                      "sha256:", "verification:", "prohibited:", "report:"):
+            self.assertIn(label, template)
+        for field in ("contract_version:", "run_id:", "created_at_utc:", "agent_slug:",
+                      "parent_run_id:", "language:"):
+            self.assertIn(field, template)
+
 
 if __name__ == "__main__":
     unittest.main()
