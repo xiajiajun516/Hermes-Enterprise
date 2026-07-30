@@ -33,7 +33,7 @@ Because Subagents running inside `delegate_task` cannot call `clarify` directly,
 5. [Master Agent] ──► Dispatches Product Subagent (Phase 2) with user choice
                             │
                             ▼
-6. [Product Subagent] ──► Finalizes artifacts/spec.md (using templates/spec-template.md)
+6. [Product Subagent] ──► Finalizes artifacts/spec.md
 ```
 
 ---
@@ -50,46 +50,68 @@ As the Master Orchestrator, you are **STRICTLY FORBIDDEN** from doing any of the
 ## 🚀 Mandatory Subagent Execution Pipeline
 
 ```text
-Stage 2a: Two-Phase Brainstorming (Product Subagent 1 ➔ Master clarify relay ➔ Product Subagent 2 using templates/spec-template.md)
+Stage 2a: Two-Phase Brainstorming (Product Subagent — skill: se-team-product-research)
        │
        ▼
-Stage 2b: Architectural Design (Architect Subagent using templates/architecture-template.md ──► artifacts/architecture.md)
+Stage 2b: Architectural Design (Architect Subagent — skill: se-team-architect)
        │
        ▼
-Stage 2c: Compliance Gate & Static Audit (Compliance Subagent ──► Master runs `python scripts/validate_artifact.py`)
+Stage 2c: Compliance Gate & Static Audit (Compliance Subagent — skill: se-team-compliance-reviewer)
+       │  └── Master runs: `python scripts/validate_artifact.py artifacts/compliance-report.md`
        │
        ▼
-Stage 2d: Subagent TDD Engineering (TDD Engineer Subagent ──► Source Code & Tests)
+Stage 2d: Subagent TDD Engineering (Engineer Subagent — skill: se-team-engineer)
        │
        ▼
-Stage 2e: QA Verification & Release (QA Subagent ──► artifacts/test-report.md & release.md)
+Stage 2e: QA Verification & Release (QA Subagent — skill: se-team-qa-release)
        │
        ▼
-Stage 2f: Rule Evolution & Memory Persistence (Rule Manager Subagent ──► references/rules/ & Scope Recall)
+Stage 2f: Rule Evolution & Memory Persistence (Rule Manager — skill: se-team-rule-manager)
        │
        ▼
-Stage 2g: Kanban Status Update (Subagent updates kanban/kanban.md ──► Master runs `python scripts/validate_kanban.py`)
+Stage 2g: Kanban Status Update (Subagent updates kanban/kanban.md)
+       │  └── Master runs: `python scripts/validate_kanban.py kanban/kanban.md`
 ```
 
 ---
 
-## 📋 Subagent Dispatch Protocol (Mandatory Context Injection)
+## 📋 Subagent Dispatch Protocol (Skill-Based — Optimized)
 
-Subagents in `delegate_task` run in isolated contexts and **DO NOT** inherit Master Agent skills or memory.
-Whenever Master Agent calls `delegate_task`, it **MUST** enforce the following rules:
+Each Subagent loads its own skill via `skill_view()` for role definition, methodology, templates, and rules. The Master Agent only needs to provide:
 
-1. **Language Forwarding**: Always include explicit language instructions in `context` matching the user's input language (e.g., *"Respond in Chinese"* or *"Use Chinese for all generated markdown text"*).
-2. **Context Injection**: Must load and inject the corresponding Agent Prompt (`references/agents/*.md`), rules, and templates into the `context` argument:
+1. **The skill name** the subagent should load
+2. **Task-specific context** (user intent, phase, user choices, which artifacts to read)
+3. **Language forwarding**: Explicit instruction to match the user's language
 
-| Stage | Subagent Target | Mandatory `context` Injection Content | Validation Gate Command |
-| :--- | :--- | :--- | :--- |
-| **Stage 2a** | Product Subagent | Content of `references/agents/02-product-research.md` + `templates/spec-template.md` | `python scripts/validate_artifact.py artifacts/spec.md` |
-| **Stage 2b** | Architect Subagent | Content of `references/agents/03-architect.md` + `templates/architecture-template.md` + `artifacts/spec.md` | `python scripts/validate_artifact.py artifacts/architecture.md` |
-| **Stage 2c** | Compliance Reviewer | Content of `references/agents/05-compliance-reviewer.md` + All files in `references/rules/` + Target Artifacts | `python scripts/validate_artifact.py artifacts/compliance-report.md` |
-| **Stage 2d** | TDD Engineer | Content of `references/agents/04-engineer.md` + `artifacts/architecture.md` + `artifacts/implementation-plan.md` | Unit Test Execution Logs |
-| **Stage 2e** | QA & Release | Content of `references/agents/06-qa-release.md` + `artifacts/spec.md` + Acceptance Criteria | Test Report Inspection |
-| **Stage 2f** | Rule Manager | Content of `references/agents/07-rule-manager.md` + Post-Mortem Logs | `scope_recall_store` / Rule File Check |
-| **Stage 2g** | Kanban Subagent | Task status update details | `python scripts/validate_kanban.py kanban/kanban.md` |
+### Dispatch Table
+
+| Stage | Subagent Role | Skill to Load | Minimal Context | Validation Gate |
+| :--- | :--- | :--- | :--- | :--- |
+| **Stage 2a** | Product Research | `se-team-product-research` | User intent + Phase (1 or 2) + user choices (Phase 2) | `python scripts/validate_artifact.py artifacts/spec.md` |
+| **Stage 2b** | Architect | `se-team-architect` | "Read artifacts/spec.md and artifacts/research.md. Design system architecture." | `python scripts/validate_artifact.py artifacts/architecture.md` |
+| **Stage 2c** | Compliance Reviewer | `se-team-compliance-reviewer` | Target artifact path(s) to audit | `python scripts/validate_artifact.py artifacts/compliance-report.md` |
+| **Stage 2d** | TDD Engineer | `se-team-engineer` | "Read artifacts/architecture.md and artifacts/implementation-plan.md. Implement with TDD." | Unit test execution logs |
+| **Stage 2e** | QA & Release | `se-team-qa-release` | Acceptance criteria from spec.md | Test report inspection |
+| **Stage 2f** | Rule Manager | `se-team-rule-manager` | Post-mortem context + user directives | `scope_recall_store` / rule file check |
+| **Stage 2g** | Kanban | *(no skill needed)* | Task status update details | `python scripts/validate_kanban.py kanban/kanban.md` |
+
+### Example Dispatch Call
+
+**Before (verbose):**
+```
+delegate_task(
+  goal="Design system architecture",
+  context="[03-architect.md全文3000字] + [architecture-template.md全文800字] + [spec.md全文1500字] + [rules全部2000字]"
+)
+```
+
+**After (optimized):**
+```
+delegate_task(
+  goal="Design system architecture for user auth service",
+  context="Load skill: se-team-architect. Then load se-team-rules for project standards. Read artifacts/spec.md and artifacts/research.md. Produce artifacts/architecture.md and artifacts/implementation-plan.md. Respond in Chinese."
+)
+```
 
 ---
 
