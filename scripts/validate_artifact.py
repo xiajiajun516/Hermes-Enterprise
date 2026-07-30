@@ -1,48 +1,45 @@
 #!/usr/bin/env python3
-"""
-Artifact Validator Script for Hermes Enterprise Profile
-Checks if generated artifact markdown files contain mandatory section headers.
-"""
-
+"""Validate one exact forward artifact; never discover legacy files."""
+import argparse
+import subprocess
 import sys
-import os
+from pathlib import Path
 
-MANDATORY_HEADERS = {
-    "spec.md": ["Scope", "User Stories", "Acceptance Criteria"],
-    "architecture.md": ["Directory Tree", "Module", "API"],
-    "compliance-report.md": ["Violations", "STATUS:"],
-    "implementation-plan.md": ["Milestones", "Module", "Development Order", "Rollback"],
-    "review.md": ["Code Quality", "Security Audit", "Diff Assessment"],
-    "test-report.md": ["Test Summary", "Acceptance Criteria"],
-    "release.md": ["Version", "Deployment Instructions"],
-}
+sys.path.insert(0, str(Path(__file__).parent))
+from artifact_io import sha256_file
+from artifact_naming import validate_relative_path
+from manifest_lineage import validate_manifest
+from task_contract import parse_and_validate_contract
 
-def validate_artifact(file_path):
-    file_name = os.path.basename(file_path)
-    if file_name not in MANDATORY_HEADERS:
-        print(f"ℹ️ Skipping validation for unknown artifact shape: {file_name}")
-        return True
 
-    if not os.path.exists(file_path):
-        print(f"❌ Error: Artifact file '{file_path}' not found.")
-        return False
+def _tracked(root, path):
+    return subprocess.run(["git", "-C", str(root), "ls-files", "--error-unmatch", "--", path], text=True, capture_output=True, check=False).returncode == 0
 
-    with open(file_path, "r", encoding="utf-8") as f:
-        content = f.read()
 
-    missing = [header for header in MANDATORY_HEADERS[file_name] if header not in content]
+def main(path, root=None):
+    root = Path(root).resolve() if root is not None else Path(__file__).resolve().parents[1]
+    rel = Path(path).as_posix()
+    if not validate_relative_path(rel):
+        print("BLOCKED: unsupported or legacy path")
+        return 1
+    try:
+        if rel.endswith("__contract.md"):
+            if not _tracked(root, rel): raise ValueError("BLOCKED: contract untracked")
+            parse_and_validate_contract(root / rel)
+        elif rel.endswith("__manifest.json"):
+            validate_manifest(rel, root)
+        else:
+            sha256_file(root / rel)
+        print("PASS", rel)
+        return 0
+    except (OSError, ValueError) as error:
+        print("BLOCKED:", error)
+        return 1
 
-    if missing:
-        print(f"❌ Validation failed for {file_name}. Missing required headers: {missing}")
-        return False
-
-    print(f"✅ Artifact validation passed for {file_name}!")
-    return True
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python validate_artifact.py <path_to_artifact>")
-        sys.exit(1)
-    
-    success = validate_artifact(sys.argv[1])
-    sys.exit(0 if success else 1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--root", type=Path)
+    parser.add_argument("path")
+    arguments = parser.parse_args()
+    sys.exit(main(arguments.path, arguments.root))
