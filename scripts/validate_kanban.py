@@ -8,12 +8,12 @@ import sys
 import os
 
 VALID_STATES = ["Backlog", "Planning", "Implementation", "In Review", "Done", "Blocked"]
-# Kanban 表头列名（用于表格格式检测）
+# Kanban column names used for table-format detection.
 KANBAN_COLUMNS = ["Backlog", "Planning", "Implementation", "In Review", "Done", "Blocked"]
 
 
 def check_kanban_table(content):
-    """检测标准 Markdown 看板表格（列名 + 分隔符），缺失时仅打印 WARNING。"""
+    """Detect a standard Markdown Kanban table and emit warnings without failing validation."""
     lines = content.split("\n")
     table_found = False
     separator_found = False
@@ -21,11 +21,11 @@ def check_kanban_table(content):
     for i, line in enumerate(lines):
         stripped = line.strip()
         if stripped.startswith("|") and stripped.endswith("|"):
-            # 检查表头是否包含看板列名
+            # Check whether the header contains Kanban column names.
             cells = [c.strip() for c in stripped.strip("|").split("|")]
             matches = sum(1 for col in KANBAN_COLUMNS if col in cells)
             if matches >= 3:
-                # 找到了表头，检查下一行是否是分隔符
+                # A header was found; check whether the next line is a separator.
                 table_found = True
                 if i + 1 < len(lines):
                     sep_line = lines[i + 1].strip()
@@ -34,14 +34,14 @@ def check_kanban_table(content):
                 break
 
     if not table_found:
-        print("⚠️  WARNING: 未检测到标准 Kanban Markdown 表格（期望列名: Backlog, Planning, Implementation, In Review, Done, Blocked）")
-        print("    建议添加 Markdown 表格以增强看板可视化。")
+        print("⚠️  WARNING: Standard Kanban Markdown table not found (expected columns: Backlog, Planning, Implementation, In Review, Done, Blocked)")
+        print("    Add a Markdown table to improve Kanban visualization.")
     elif not separator_found:
-        print("⚠️  WARNING: 检测到 Kanban 表头但缺少分隔符行（| --- | --- |），表格可能渲染异常。")
+        print("⚠️  WARNING: Kanban header found but separator row (| --- | --- |) is missing; rendering may be incorrect.")
     else:
-        print("✅  Kanban 表格格式检测通过。")
+        print("✅  Kanban table format check passed.")
 
-    # 始终返回 True（仅警告，向后兼容）
+    # Always return True: this is a backward-compatible warning only.
     return True
 
 def validate_kanban(file_path):
@@ -55,7 +55,7 @@ def validate_kanban(file_path):
     print(f"🔍 Validating {file_path}...")
     errors = []
 
-    # 表格格式检测（仅警告，不影响退出码）
+    # Table-format detection is a warning only and does not affect the exit code.
     check_kanban_table(content)
 
     for state in VALID_STATES:

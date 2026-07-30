@@ -8,7 +8,7 @@ attempt: <positive-integer>
 agent_display_name: "<display-name>"
 agent_slug: "<product-research|architect|compliance-reviewer|engineer|qa-release|rule-manager>"
 parent_run_id: <null-or-YYYYMMDDTHHmmss-SSS>
-language: "zh-CN"
+language: "en-US"
 inputs:
   - path: "artifacts/<producer-slug>/<producer-run-id>__<artifact-name>.md"
     artifact_name: "<artifact-name>"
@@ -48,4 +48,4 @@ verification: <exact-commands, expected-exit-codes, and validation criteria>
 prohibited: legacy inputs, latest, glob, mtime, traversal, guessed inputs, overwrite, undeclared writes, and Git mutations unless explicitly authorized
 
 ## Final Report Protocol
-report: 中文；列出 Contract run_id、精确输入/输出路径、SHA-256、实际命令和 exit code、验证结果、BLOCKED/风险及未执行项
+report: English; include the Contract run_id, exact input/output paths, SHA-256 values, actual commands and exit codes, verification results, BLOCKED state, risks, and omitted work

@@ -6,23 +6,27 @@ category: software-development
 ---
 # Software Engineering AI Team — Master
 
-## 派发前置规则
+## Dispatch Prerequisites
 
-每次 future pipeline dispatch 必须先以 create-new / exclusive write 创建
-`artifacts/runs/<run-id>__contract.md`。Master 只可将该 Contract 的精确路径与 SHA-256、
-`inputs[]` 精确路径/SHA-256，以及声明的 create-new outputs 传给 Subagent。
+Every future pipeline dispatch must first create
+`artifacts/runs/<run-id>__contract.md` with create-new / exclusive-write semantics. The Master
+may pass only the Contract's exact path and SHA-256, exact `inputs[]` paths and SHA-256 values,
+and declared create-new outputs to a Subagent.
 
-禁止以 `latest`、glob、目录遍历、mtime、猜测文件名或根目录 `artifacts/*.md` legacy 文件选择输入。
-future output 必须是 Git-tracked、不可覆盖的角色 artifact，且最终由 Git-tracked manifest 关联。
-root-level legacy files 既不迁移也不作为 runtime input。
+Never select inputs using `latest`, globbing, directory traversal, mtime, filename guessing, or
+root-level `artifacts/*.md` legacy files. Future outputs must be Git-tracked, immutable agent
+artifacts linked by a Git-tracked manifest. Root-level legacy files are neither migrated nor
+runtime inputs.
 
-在每个动态 Task Contract 中先执行环境门：显式 `cd` 到仓库、断言 `pwd`、验证全部精确输入和
-所需脚本存在。门禁失败必须报告 `BLOCKED`，不得写入任何路径。
+Every dynamic Task Contract must begin with an environment gate: explicitly `cd` to the repository,
+assert `pwd`, and verify that every exact input and required script exists. If the gate fails,
+report `BLOCKED` and write no paths.
 
-## 必须传给每个 Subagent 的完整动态 Task Contract
+## Complete Dynamic Task Contract Required for Every Subagent
 
-复制下列正文到 `delegate_task` 的 context，并将所有 `<...>` 占位符替换为实际值；替换后不得
-保留占位符。front matter 的 `inputs` / `outputs` 只能包含精确路径，不可使用推断规则。
+Copy the following body into `delegate_task` context and replace every `<...>` placeholder with an
+actual value; no placeholder may remain after substitution. Front-matter `inputs` / `outputs` may
+contain only exact paths and must never rely on inference.
 
 ```markdown
 ---
@@ -35,7 +39,7 @@ attempt: <positive-integer>
 agent_display_name: "<display-name>"
 agent_slug: "<product-research|architect|compliance-reviewer|engineer|qa-release|rule-manager>"
 parent_run_id: <null-or-YYYYMMDDTHHmmss-SSS>
-language: "zh-CN"
+language: "en-US"
 inputs:
   - path: "artifacts/<producer-slug>/<producer-run-id>__<artifact-name>.md"
     artifact_name: "<artifact-name>"
@@ -75,11 +79,11 @@ verification: <exact-commands, expected-exit-codes, and validation criteria>
 prohibited: legacy inputs, latest, glob, mtime, traversal, guessed inputs, overwrite, undeclared writes, and Git mutations unless explicitly authorized
 
 ## Final Report Protocol
-report: 中文；列出 Contract run_id、精确输入/输出路径、SHA-256、实际命令和 exit code、验证结果、BLOCKED/风险及未执行项
+report: English; include the Contract run_id, exact input/output paths, SHA-256 values, actual commands and exit codes, verification results, BLOCKED state, risks, and omitted work
 ```
 
-Master 在派发前用 `python scripts/validate_artifact.py <exact-contract-path>` 验证 Contract；
-只接受 tracked manifest 链路。
+Before dispatching, the Master must validate the Contract with
+`python scripts/validate_artifact.py <exact-contract-path>` and accept only tracked manifest lineage.
 
 | Stage | slug | standard outputs |
 |---|---|---|

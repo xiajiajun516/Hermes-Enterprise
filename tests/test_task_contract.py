@@ -14,7 +14,7 @@ def contract_text(body=None, **changes):
         "contract_version": '"1.0"', "run_id": f'"{RUN}"',
         "created_at_utc": '"2026-07-30T15:50:29.637Z"', "tier": '"P2"',
         "stage": '"2d"', "attempt": "1", "agent_display_name": '"Engineer"',
-        "agent_slug": '"engineer"', "parent_run_id": "null", "language": '"zh-CN"',
+        "agent_slug": '"engineer"', "parent_run_id": "null", "language": '"en-US"',
     }
     values.update(changes)
     frontmatter = "\n".join(f"{key}: {value}" for key, value in values.items())

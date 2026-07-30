@@ -22,7 +22,7 @@ attempt: 1
 agent_display_name: "Engineer"
 agent_slug: "engineer"
 parent_run_id: null
-language: "zh-CN"
+language: "en-US"
 inputs:
   - path: "artifacts/architect/{SOURCE_RUN}__architecture.md"
     artifact_name: "architecture"
