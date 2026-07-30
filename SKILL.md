@@ -1,5 +1,6 @@
 ---
 name: software-engineering-team
+version: 1.3.0
 description: "CRITICAL SYSTEM SKILL: MUST be loaded automatically for ALL software engineering, coding, feature development, bug fixes, refactoring, or architectural design tasks. Executes Subagent-Driven Development with Two-Phase Brainstorming, TDD, Templates, Compliance Gates, and Rule Evolution."
 category: software-development
 ---
@@ -123,3 +124,33 @@ The Master Agent MUST pause and use `clarify` before allowing Subagents to execu
 3. `.env` or secret configuration changes
 4. Production deployments
 5. Breaking API changes
+
+---
+
+## 六、 分级执行流程与 Kanban 状态机
+
+### 0. P0/P1/P2 Dispatch Decision Flow
+
+```
+用户请求
+    │
+    ▼
+[P0 判断] 是否仅涉及：Typo 修复 / 注释更新 / 简单CSS调整 / 已知配置修改？
+    ├── 是 ──► Fast-Track: Engineer → QA → Kanban
+    │
+    └── 否 ──► [P1/P2 判断] 是否需要完整合规审查？
+                ├── P1 — 简化: Product Research → Engineer → QA → Rule Manager
+                └── P2 — 完整: 当前7阶段默认流程
+```
+
+### 1. 任务通道分级 (Pipeline Tiering)
+
+避免小任务过载，定义 3 种执行通道：
+* **P0 / Fast-Track (小修小补/Typo)**：`Engineer` ➔ `QA & Release` ➔ `Done`
+* **P1 / Standard (普通功能开发)**：`Product Research` ➔ `Engineer` ➔ `QA & Release` ➔ `Rule Manager` ➔ `Done`
+* **P2 / Full-Spec (重大架构变更)**：跑完全套完整流程（包含多轮 Compliance 审查与 Rule Review）
+
+### 2. 精简 Kanban 状态流
+
+在 `kanban/kanban.md` 中维护 5+1 个核心状态：
+`Backlog` ➔ `Planning` ➔ `Implementation` ➔ `In Review` ➔ `Done` (异常状态：`Blocked`)
