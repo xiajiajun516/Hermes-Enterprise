@@ -18,14 +18,14 @@
 
 ```text
 Software Engineering Team Profile/
-├── agents/                 # Agent 定义与提示词配置
-│   ├── 01-workflow-manager.md
-│   ├── 02-product-research.md
-│   ├── 03-architect.md
-│   ├── 04-engineer.md
-│   ├── 05-compliance-reviewer.md
-│   ├── 06-qa-release.md
-│   └── 07-rule-manager.md
+├── skills/                 # Agent 技能定义 (Hermes Skills)
+│   ├── se-team-workflow-manager
+│   ├── se-team-product-research
+│   ├── se-team-architect
+│   ├── se-team-engineer
+│   ├── se-team-compliance-reviewer
+│   ├── se-team-qa-release
+│   └── se-team-rule-manager
 ├── artifacts/              # 项目各阶段标准交付物
 │   ├── spec.md
 │   ├── research.md
@@ -35,11 +35,11 @@ Software Engineering Team Profile/
 │   ├── review.md
 │   ├── test-report.md
 │   └── release.md
-├── rules/                  # 全局规范库 (设计/技术栈/安全/编码)
-│   ├── design-system.md
-│   ├── tech-stack.md
-│   ├── security.md
-│   └── workflow-rules.md
+├── rules/                  # 全局规范库 (已合并至 se-team-rules skill)
+│   ├── design-system.md     # (历史参考，实际定义在 se-team-rules skill)
+│   ├── tech-stack.md        # (历史参考，实际定义在 se-team-rules skill)
+│   ├── security.md          # (历史参考，实际定义在 se-team-rules skill)
+│   └── workflow-rules.md    # (历史参考，实际定义在 se-team-rules skill)
 ├── skills/                 # 分类公共技能库 (Backend/Frontend/Testing/etc.)
 ├── kanban/                 # 看板状态记录文件 (`kanban.md`)
 └── scripts/                # 自动化辅助脚本 (如 kanban 校验工具)
@@ -57,9 +57,9 @@ Software Engineering Team Profile/
 | **02. Product & Research** | 需求与调研 | 需求梳理、User Story 划定、技术可行性调研 | `spec.md`, `research.md` | - |
 | **03. Architect Agent** | 架构与规划 | 模块设计、DB Schema、接口定义、实施计划拆解 | `architecture.md`, `implementation-plan.md` | - |
 | **04. Engineer Agent** | 开发实施 | 后端/前端/数据库/AI 模块代码编写与单元测试 | Source Code & Unit Tests | 🚫 严禁绕过架构设计随意引入未授权第三方库 |
-| **05. Compliance Reviewer**| 规范合规审查 | 静态对比 Artifact 与 `rules/`，检查规范冲突 | `compliance-report.md` | 🚫 仅负责挑刺并输出结果，不直接修改 Artifact |
+| **05. Compliance Reviewer**| 规范合规审查 | 静态对比 Artifact 与 `se-team-rules`，检查规范冲突 | `compliance-report.md` | 🚫 仅负责挑刺并输出结果，不直接修改 Artifact |
 | **06. QA & Release** | 质量与交付 | 执行集成测试、撰写 Review 报告、生成文档与发布单 | `review.md`, `test-report.md`, `release.md` | 🚫 未经 `clarify` 审批严禁部署生产环境 |
-| **07. Rule Manager** | 规则管理与进化| 接收用户新规范指令、踩坑复盘并更新 `rules/` 及 Scope Recall 记忆 | `rules/*.md`, Scope Recall 更新 | 🚫 修改核心安全规则必须经过用户 `clarify` 确认 |
+| **07. Rule Manager** | 规则管理与进化| 接收用户新规范指令、踩坑复盘并更新 `se-team-rules` 及 Scope Recall 记忆 | `se-team-rules skill`, Scope Recall 更新 | 🚫 修改核心安全规则必须经过用户 `clarify` 确认 |
 
 ---
 
@@ -69,7 +69,7 @@ Software Engineering Team Profile/
 
 ```text
 Memory & Rules 架构：
-├── rules/*.md (物理文件) : 存放硬性团队标准 (UI Design Tokens, 框架选择, 安全红线)
+├── `se-team-rules skill` : 存放硬性团队标准 (UI Design Tokens, 框架选择, 安全红线)
 ├── target="user"          : 用户个人交互偏好、回复风格 (全局共享)
 ├── target="memory"        : 通用编程踩坑教训、环境避坑指南 (全局共享)
 ├── target="project"       : 当前项目的特定业务概念、Entity 映射、模块约定 (项目内隔离)
@@ -77,7 +77,7 @@ Memory & Rules 架构：
 ```
 
 ### 规则与记忆检索原则：
-* **门控与 Context 注入 (Subagent Dispatch Protocol)**：在调用子 Agent (`delegate_task`) 时，Master 必须将 `references/agents/*.md` 提示词配置、关联模板/规则以及语言指令注入 `context` 参数，确保隔离的 Subagent 严格遵循 Skill 规范。
+* **门控与 Context 注入 (Subagent Dispatch Protocol)**：在调用子 Agent (`delegate_task`) 时，Master 必须将 `skills/se-team-*` 技能定义、关联模板/规则以及语言指令注入 `context` 参数，确保隔离的 Subagent 严格遵循 Skill 规范。
 * **脚本硬门禁 (Python Validation Gate)**：在产物生成后，Master 必须调用 `scripts/validate_artifact.py` 与 `scripts/validate_kanban.py` 进行硬性 Schema 校验。
 * **时效控制 (`freshness`)**：对带有版本号的配置或依赖规范标记 TTL，过期自动拉起重新校验。
 
@@ -94,7 +94,7 @@ Memory & Rules 架构：
                │                                               │
                ▼                                               │ (Fail: 附带 compliance-report.md 修改意见)
    [Compliance Reviewer 静态审查]                              │
-  (对比 rules/*.md & DESIGN.md)                                │
+  (对比 se-team-rules & DESIGN.md)                                │
                │                                               │
         ┌──────┴──────┐                                        │
       PASS           FAIL ─────────────────────────────────────┘
@@ -181,9 +181,9 @@ Memory & Rules 架构：
 ## 十、 最终交付 CheckList
 
 配置完成后的 Profile 校验标准：
-- [x] 目录结构齐全，包含 `agents/`, `artifacts/`, `rules/`, `skills/`, `kanban/`。
-- [x] 5 核心 Agent + 2 治理 Agent 的 Prompt 配置文件定义清晰，职责无冲突。
-- [x] `rules/` 目录下放置初始设计与技术规范文件 (如 `design-system.md`)。
+- [x] 目录结构齐全，包含 `skills/`, `artifacts/`, `rules/`, `kanban/`。
+- [x] 5 核心 Agent + 2 治理 Agent 的 Skill 定义清晰，职责无冲突。
+- [x] `se-team-rules` skill 包含完整规范（设计、技术栈、安全、工作流）。
 - [x] 成功配置基于 `clarify` 的 Approval Gate 阻断逻辑。
 - [x] `kanban.md` 标准文件创建完成，支持通过脚本或 Workflow Manager 维护。
 - [x] 集成 `scope-recall-hermes` 插件并划分 `project`/`ops` 作用域。

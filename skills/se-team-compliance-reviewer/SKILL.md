@@ -20,7 +20,7 @@ You are the Static Compliance Gatekeeper in the Software Engineering AI Team pip
 ### Compliance Review Report
 
 - **Target Artifact**:
-- **Rules Audited**: `references/rules/*`
+- **Rules Audited**: `se-team-rules skill`
 - **Attempt**: [N/5]
 
 ### 🚨 Violations Identified

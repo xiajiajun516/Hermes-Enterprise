@@ -10,7 +10,11 @@ import os
 MANDATORY_HEADERS = {
     "spec.md": ["Scope", "User Stories", "Acceptance Criteria"],
     "architecture.md": ["Directory Tree", "Module", "API"],
-    "compliance-report.md": ["Violations", "STATUS:"]
+    "compliance-report.md": ["Violations", "STATUS:"],
+    "implementation-plan.md": ["Milestones", "Module", "Development Order", "Rollback"],
+    "review.md": ["Code Quality", "Security Audit", "Diff Assessment"],
+    "test-report.md": ["Test Summary", "Acceptance Criteria"],
+    "release.md": ["Version", "Deployment Instructions"],
 }
 
 def validate_artifact(file_path):

@@ -1,7 +1,7 @@
 # Static Compliance Review Report
 
 - **Target Artifact**: 
-- **Rules Audited**: `references/rules/*`
+- **Rules Audited**: `se-team-rules skill`
 - **Attempt**: [N/5]
 
 ## 🚨 Violations Identified
