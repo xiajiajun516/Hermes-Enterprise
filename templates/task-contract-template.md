@@ -49,3 +49,4 @@ prohibited: legacy inputs, latest, glob, mtime, traversal, guessed inputs, overw
 
 ## Final Report Protocol
 report: English; include the Contract run_id, exact input/output paths, SHA-256 values, actual commands and exit codes, verification results, BLOCKED state, risks, and omitted work
+handoff: from the start, maintain artifacts/handoffs/<run-id>__handoff.md (fields: run_id, stage, done, remaining, next_steps with exact commands/paths). Refresh it before every deliverable write and before every verification run. When you estimate ~10 tool calls remain, stop and write/refresh the handoff immediately — never let the budget expire without one. The handoff is scratch (gitignored), not a tracked deliverable.

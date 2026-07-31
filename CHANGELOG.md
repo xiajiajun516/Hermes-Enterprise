@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.6.2
+- Subagent handoff protocol: every Contract now instructs the agent to maintain
+  `artifacts/handoffs/<run-id>__handoff.md` (gitignored scratch, fields:
+  run_id, stage, done, remaining, next_steps with exact commands) from the
+  start and refresh it before every deliverable write and verification run.
+  When the agent estimates ~10 tool calls remain it must stop and write the
+  handoff immediately — a run whose budget expires mid-task leaves a resume
+  point for the retry subagent instead of dying silently.
+- Retry & Recovery: a retry subagent first reads the failed run's handoff.
+- `close_run` cleanliness gate tolerates `artifacts/handoffs/` scratch files.
+
 ## 1.6.1
 - Failure channel: `blocked`/`failed` runs can close with **zero outputs**
   (aborted runs no longer deadlock in in_flight); `completed` runs still require

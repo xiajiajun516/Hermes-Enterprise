@@ -151,7 +151,7 @@ class ContractTests(unittest.TestCase):
             self.assertIn(f"## {heading}", template)
             self.assertIn(heading, master)
         for label in ("goal:", "scope:", "source:", "command:", "inputs:", "outputs:",
-                      "sha256:", "verification:", "prohibited:", "report:"):
+                      "sha256:", "verification:", "prohibited:", "report:", "handoff:"):
             self.assertIn(label, template)
         for field in ("contract_version:", "run_id:", "created_at_utc:", "agent_slug:",
                       "parent_run_id:", "language:"):

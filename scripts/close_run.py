@@ -128,7 +128,7 @@ def close_manifest(contract_path, status, verification, closed_at, root):
             rel = line[3:].strip()
             if rel.startswith('"') and rel.endswith('"'):
                 rel = rel[1:-1]
-            if rel != manifest_rel:
+            if rel != manifest_rel and not rel.startswith("artifacts/handoffs/"):
                 unexpected.append(line)
         if unexpected:
             raise ValueError("BLOCKED: undeclared working-tree changes: " + "; ".join(unexpected))

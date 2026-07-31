@@ -23,3 +23,5 @@ htmlcov/
 coverage.xml
 # Local planning documents (not part of the shipped profile)
 docs/
+# Scratch handoff files written by subagents nearing their tool budget
+artifacts/handoffs/

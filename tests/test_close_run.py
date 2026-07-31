@@ -148,6 +148,20 @@ class CloseRunTests(unittest.TestCase):
             self.assertIn("undeclared working-tree changes", text)
             self.assertFalse((root / f"artifacts/runs/{RUN}__manifest.json").exists())
 
+    def test_close_allows_handoff_scratch_files(self):
+        directory, root, _, _ = make_repo_without_manifest()
+        with directory:
+            handoff = root / f"artifacts/handoffs/{RUN}__handoff.md"
+            handoff.parent.mkdir(parents=True, exist_ok=True)
+            handoff.write_text(
+                "run_id: 20260730T155029-637\nstage: engineer\ndone: gate\nremaining: write report\nnext_steps: echo done\n",
+                encoding="utf-8",
+            )
+            code, text = close(root, "--contract", f"artifacts/runs/{RUN}__contract.md", "--status", "completed",
+                               "--verification", VERIFICATION_PASS, "--closed-at", CLOSED_AT)
+            self.assertEqual(code, 0, text)
+            self.assertIn("CLOSED", text)
+
     def test_contract_creation_validates_before_write(self):
         directory, root, _, _ = make_repo_without_contract()
         with directory:
