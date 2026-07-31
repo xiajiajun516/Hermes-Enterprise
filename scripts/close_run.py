@@ -94,8 +94,12 @@ def close_manifest(contract_path, status, verification, closed_at, root):
         for output in contract["outputs"]:
             path = output["target_path"]
             if not _tracked(root, path):
+                if status in {"blocked", "failed"}:
+                    continue  # aborted run: outputs may be absent
                 raise ValueError(f"BLOCKED: output untracked: {path}")
             if not (root / path).is_file():
+                if status in {"blocked", "failed"}:
+                    continue
                 raise ValueError(f"BLOCKED: output missing: {path}")
             outputs.append({"path": path, "artifact_name": output["artifact_name"], "sha256": sha256_file(root / path)})
         payload = {
@@ -113,6 +117,21 @@ def close_manifest(contract_path, status, verification, closed_at, root):
         }
         # Pre-commit validation: skip only the git-tracking gate on the manifest itself.
         validate_manifest_data(payload, manifest_rel, root, require_tracked=False)
+        # Cleanliness gate: the working tree may differ from HEAD only by the
+        # manifest being created. Any other change is an undeclared mutation
+        # (e.g. tampered templates, scripts, skills) and blocks the close.
+        porcelain = subprocess.run(
+            ["git", "-C", str(root), "status", "--porcelain"], text=True, capture_output=True, check=False
+        )
+        unexpected = []
+        for line in porcelain.stdout.splitlines():
+            rel = line[3:].strip()
+            if rel.startswith('"') and rel.endswith('"'):
+                rel = rel[1:-1]
+            if rel != manifest_rel:
+                unexpected.append(line)
+        if unexpected:
+            raise ValueError("BLOCKED: undeclared working-tree changes: " + "; ".join(unexpected))
         create_new_utf8(target, json.dumps(payload, indent=2) + "\n")
     except (OSError, ValueError) as error:
         return _blocked(error)

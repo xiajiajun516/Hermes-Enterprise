@@ -123,14 +123,17 @@ def validate_manifest_data(data, rel, root, require_tracked=True):
     )
     if mismatch:
         raise ValueError("contract mismatch")
-    if not isinstance(data["outputs"], list) or len(data["outputs"]) != len(contract["outputs"]):
-        raise ValueError("output mismatch")
     expected_outputs = [{"path": output["target_path"], "artifact_name": output["artifact_name"]} for output in contract["outputs"]]
-    for output, expected in zip(data["outputs"], expected_outputs):
-        output_matches = {"path": output["path"], "artifact_name": output["artifact_name"]} == expected
-        if not isinstance(output, dict) or set(output) != {"path", "artifact_name", "sha256"} or not output_matches:
+    if not isinstance(data["outputs"], list):
+        raise ValueError("output mismatch")
+    for output in data["outputs"]:
+        if not isinstance(output, dict) or set(output) != {"path", "artifact_name", "sha256"}:
+            raise ValueError("output mismatch")
+        if {"path": output["path"], "artifact_name": output["artifact_name"]} not in expected_outputs:
             raise ValueError("output mismatch")
         _require_file(root, tracked, output["path"], output["sha256"], "output")
+    if data["status"] == "completed" and len(data["outputs"]) != len(expected_outputs):
+        raise ValueError("output mismatch")
     producer_outputs = {}
     for manifest_rel in tracked_manifest_paths(root):
         try:

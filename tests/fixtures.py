@@ -53,8 +53,8 @@ source: architecture
 ## Environment SOP
 command: gate
 ## Artifact I/O Contract
-inputs: exact
-outputs: exact
+inputs: artifacts/architect/{source_run}__architecture.md
+outputs: artifacts/engineer/{run}__implementation-report.md
 ## Checksum / Verification
 sha256: actual
 verification: command
@@ -69,6 +69,8 @@ def chain_contract(run, slug, stage, output_name, input_item=None, parent=None):
     """Contract for an arbitrary stage; input_item is a dict with path/artifact_name/sha256/producer_run_id."""
     created_at = iso_utc_for_run_id(run)
     parent_line = "null" if parent is None else f'"{parent}"'
+    body_inputs = input_item["path"] if input_item is not None else "[]"
+    body_outputs = f"artifacts/{slug}/{run}__{output_name}.md"
     inputs = ""
     if input_item is not None:
         inputs = f"""inputs:
@@ -108,8 +110,8 @@ source: upstream
 ## Environment SOP
 command: gate
 ## Artifact I/O Contract
-inputs: exact
-outputs: exact
+inputs: {body_inputs}
+outputs: {body_outputs}
 ## Checksum / Verification
 sha256: actual
 verification: command
@@ -196,4 +198,7 @@ def make_repo(with_manifest=True, contract=None, template=TEMPLATE, with_contrac
         }
         manifest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     subprocess.run(["git", "-C", str(root), "add", "artifacts", "templates"], check=True)
+    subprocess.run(["git", "-C", str(root), "config", "user.email", "fixture@test"], check=True)
+    subprocess.run(["git", "-C", str(root), "config", "user.name", "fixture"], check=True)
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", "fixture baseline"], check=True)
     return directory, root, manifest, payload

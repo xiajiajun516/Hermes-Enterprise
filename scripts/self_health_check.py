@@ -13,6 +13,10 @@ def main(root=None):
     manifests = tracked_manifest_paths(root)
     if not manifests:
         print("BOOTSTRAP_PENDING: no Git-tracked future manifests")
+        print(
+            "expected until the first run is closed; see templates/task-contract-template.md "
+            "and `python scripts/close_run.py --help`"
+        )
         return 1
     try:
         items = [validate_manifest(path, root, manifests) for path in manifests]

@@ -48,8 +48,8 @@ source: approved architecture
 ## Environment SOP
 command: repository gate
 ## Artifact I/O Contract
-inputs: exact paths
-outputs: create-new targets
+inputs: artifacts/architect/20260730T150000-001__architecture.md
+outputs: artifacts/engineer/20260730T155029-637__implementation-report.md
 ## Checksum / Verification
 sha256: lower hexadecimal
 verification: exit evidence
@@ -214,6 +214,22 @@ class ContractTests(unittest.TestCase):
     def test_quoted_yaml_markers_accepted(self):
         parsed = self.parse(contract_text(agent_display_name='"QA & Release"'))
         self.assertEqual(parsed["agent_display_name"], "QA & Release")
+
+    def test_body_io_enumeration_must_match_frontmatter(self):
+        body = contract_text().replace(
+            "inputs: artifacts/architect/20260730T150000-001__architecture.md",
+            "inputs: artifacts/architect/20990101T000000-001__architecture.md",
+        )
+        with self.assertRaisesRegex(ValueError, "contradicts frontmatter"):
+            self.parse(body)
+
+    def test_body_placeholder_io_rejected(self):
+        body = contract_text().replace(
+            "inputs: artifacts/architect/20260730T150000-001__architecture.md",
+            "inputs: exact",
+        )
+        with self.assertRaisesRegex(ValueError, "contradicts frontmatter"):
+            self.parse(body)
 
 
 if __name__ == "__main__":

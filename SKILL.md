@@ -1,6 +1,6 @@
 ---
 name: software-engineering-team
-version: 1.6.0
+version: 1.6.1
 description: "Forward-only Contract-driven Software Engineering AI Team orchestration."
 category: software-development
 ---
@@ -88,6 +88,17 @@ Before dispatching, the Master must validate the Contract with
 Before reading any input, the Master (or the Subagent) must authorize it with
 `python scripts/validate_artifact.py --authorize <exact-contract-path> <input-path>`;
 only authorized inputs may be read.
+
+## Retry & Recovery
+
+A failed or blocked run is closed as-is (`blocked`/`failed` status accepts zero
+outputs — an aborted run leaves no artifacts). The kanban Blocked column is a
+manual review queue: inspect the manifest, then either retry or abandon.
+
+To retry, open a new Contract with the same stage, `attempt` incremented, and
+`parent_run_id` set to the failed run; its inputs may consume the failed run's
+outputs or the original upstream artifacts. Forward-only artifacts are immutable:
+a wrong record is superseded by a new run, never rewritten.
 
 | Stage | slug | standard outputs |
 |---|---|---|

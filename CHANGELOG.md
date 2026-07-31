@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.6.1
+- Failure channel: `blocked`/`failed` runs can close with **zero outputs**
+  (aborted runs no longer deadlock in in_flight); `completed` runs still require
+  every declared output. Manifest validation accepts partial outputs for
+  non-completed status only (undeclared outputs still rejected).
+- Cleanliness gate: closing a run now blocks on any undeclared working-tree
+  change (only the manifest itself may be untracked) — tampered templates,
+  scripts or skills surface as `BLOCKED: undeclared working-tree changes`.
+- Contract body must enumerate the same input/output paths as the frontmatter;
+  placeholder bodies (`inputs: exact`) are rejected — the body is the
+  subagent's behavioral contract and can no longer drift from machine truth.
+- Rule Manager skill documents the rule-change path (repo `se-team-rules` +
+  manual sync); retry & recovery flow (attempt N+1 with `parent_run_id`,
+  Blocked column as review queue) documented in SKILL.md and CONTRIBUTING.
+- `self_health_check` bootstrap state prints next-step guidance.
+
 ## 1.6.0
 - Trust-chain hardening (audit round, 2026-07-31):
   - Input producer lineage: every `inputs[].producer_run_id` must exist as a tracked

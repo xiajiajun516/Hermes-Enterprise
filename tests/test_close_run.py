@@ -21,6 +21,13 @@ VERIFICATION_PASS = json.dumps([{
     "result": "PASS",
     "evidence_paths": [],
 }])
+VERIFICATION_FAIL = json.dumps([{
+    "command": "gate",
+    "expected_exit_code": 0,
+    "exit_code": 1,
+    "result": "FAIL",
+    "evidence_paths": [],
+}])
 CLOSED_AT = "2026-07-30T15:51:00.000Z"
 
 
@@ -114,6 +121,33 @@ class CloseRunTests(unittest.TestCase):
             self.assertEqual(code, 1)
             self.assertIn("BLOCKED: contract untracked", text)
 
+    def test_blocked_run_can_close_with_zero_outputs(self):
+        directory, root, _, _ = make_repo_without_manifest()
+        with directory:
+            out = root / f"artifacts/engineer/{RUN}__implementation-report.md"
+            subprocess.run(["git", "-C", str(root), "rm", "-q", "--cached", out.relative_to(root).as_posix()], check=True)
+            out.unlink()
+            subprocess.run(["git", "-C", str(root), "commit", "-qm", "abort: drop declared output"], check=True)
+            code, text = close(root, "--contract", f"artifacts/runs/{RUN}__contract.md", "--status", "blocked",
+                               "--verification", VERIFICATION_FAIL, "--closed-at", CLOSED_AT)
+            self.assertEqual(code, 0, text)
+            self.assertIn("CLOSED", text)
+            payload = json.loads((root / f"artifacts/runs/{RUN}__manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual(payload["outputs"], [])
+            self.assertEqual(payload["status"], "blocked")
+
+    def test_close_rejects_undeclared_working_tree_changes(self):
+        directory, root, _, _ = make_repo_without_manifest()
+        with directory:
+            template = root / "templates/implementation-report-template.md"
+            template.write_text("# Tampered\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(root), "add", "templates"], check=True)
+            code, text = close(root, "--contract", f"artifacts/runs/{RUN}__contract.md", "--status", "completed",
+                               "--verification", VERIFICATION_PASS, "--closed-at", CLOSED_AT)
+            self.assertEqual(code, 1)
+            self.assertIn("undeclared working-tree changes", text)
+            self.assertFalse((root / f"artifacts/runs/{RUN}__manifest.json").exists())
+
     def test_contract_creation_validates_before_write(self):
         directory, root, _, _ = make_repo_without_contract()
         with directory:
@@ -159,6 +193,10 @@ class EndToEndRehearsalTests(unittest.TestCase):
                 template = root / template_paths[name]
                 template.parent.mkdir(parents=True, exist_ok=True)
                 template.write_text(f"# {name} — template\n## Run Identity\n## Source Artifacts\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(root), "config", "user.email", "fixture@test"], check=True)
+            subprocess.run(["git", "-C", str(root), "config", "user.name", "fixture"], check=True)
+            subprocess.run(["git", "-C", str(root), "add", "templates"], check=True)
+            subprocess.run(["git", "-C", str(root), "commit", "-qm", "fixture: templates"], check=True)
 
             stages = [
                 ("20260731T100000-001", "product-research", "2a", "spec", None, None),
@@ -183,12 +221,14 @@ class EndToEndRehearsalTests(unittest.TestCase):
                 output = root / f"artifacts/{slug}/{run}__{output_name}.md"
                 output.parent.mkdir(parents=True, exist_ok=True)
                 output.write_text(f"{output_name} content", encoding="utf-8")
-                subprocess.run(["git", "-C", str(root), "add", "artifacts", "templates"], check=True)
+                subprocess.run(["git", "-C", str(root), "add", "artifacts"], check=True)
+                subprocess.run(["git", "-C", str(root), "commit", "-qm", f"fixture: {run} contract+output"], check=True)
                 code, text = close(root, "--contract", contract.relative_to(root).as_posix(),
                                    "--status", "completed", "--verification", VERIFICATION_PASS,
                                    "--closed-at", "2026-07-31T13:00:00.000Z")
                 self.assertEqual(code, 0, text)
                 subprocess.run(["git", "-C", str(root), "add", f"artifacts/runs/{run}__manifest.json"], check=True)
+                subprocess.run(["git", "-C", str(root), "commit", "-qm", f"fixture: {run} manifest"], check=True)
                 previous_output = {"run": run, "slug": slug}
 
             output_stream = io.StringIO()

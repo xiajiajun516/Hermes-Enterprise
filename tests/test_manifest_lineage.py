@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from manifest_lineage import validate_manifest, validate_manifest_data, validate_parent_graph
 
-from fixtures import RUN, SOURCE_RUN, make_repo
+from fixtures import RUN, SOURCE_RUN, digest, make_repo
 
 
 class LineageTests(unittest.TestCase):
@@ -121,6 +121,47 @@ class LineageTests(unittest.TestCase):
             }]
             manifest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "contradicts exit code"):
+                validate_manifest(manifest.relative_to(root).as_posix(), root)
+
+    def test_blocked_manifest_allows_partial_outputs(self):
+        directory, root, manifest, payload = self.fixture()
+        with directory:
+            payload["status"] = "blocked"
+            payload["outputs"] = []
+            payload["verification"] = [{
+                "command": "gate", "expected_exit_code": 0, "exit_code": 1,
+                "result": "FAIL", "evidence_paths": [],
+            }]
+            manifest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            self.assertEqual(validate_manifest(manifest.relative_to(root).as_posix(), root)["status"], "blocked")
+
+    def test_completed_manifest_requires_all_outputs(self):
+        directory, root, manifest, payload = self.fixture()
+        with directory:
+            payload["outputs"] = []
+            manifest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "output mismatch"):
+                validate_manifest(manifest.relative_to(root).as_posix(), root)
+
+    def test_blocked_manifest_rejects_undeclared_output(self):
+        directory, root, manifest, payload = self.fixture()
+        with directory:
+            undeclared = root / "artifacts/engineer/undeclared.md"
+            undeclared.parent.mkdir(parents=True, exist_ok=True)
+            undeclared.write_text("x", encoding="utf-8")
+            payload["status"] = "blocked"
+            payload["outputs"] = [{
+                "path": "artifacts/engineer/undeclared.md",
+                "artifact_name": "implementation-report",
+                "sha256": digest(undeclared),
+            }]
+            payload["verification"] = [{
+                "command": "gate", "expected_exit_code": 0, "exit_code": 1,
+                "result": "FAIL", "evidence_paths": [],
+            }]
+            manifest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            subprocess.run(["git", "-C", str(root), "add", "artifacts"], check=True)
+            with self.assertRaisesRegex(ValueError, "output mismatch"):
                 validate_manifest(manifest.relative_to(root).as_posix(), root)
 
 

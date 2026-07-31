@@ -100,6 +100,34 @@ def _validate_sections(body):
             raise ValueError("missing section semantic fields")
 
 
+BODY_PATH_RE = re.compile(r"artifacts/[a-z0-9-]+/[A-Za-z0-9._-]+__[a-z0-9-]+\.md")
+
+
+def _section_text(body, heading):
+    matches = list(re.finditer(r"^## (.+)$", body, re.M))
+    for index, match in enumerate(matches):
+        if match.group(1) == heading:
+            end = matches[index + 1].start() if index + 1 < len(matches) else len(body)
+            return body[match.end():end]
+    return ""
+
+
+def _validate_io_consistency(body, data):
+    """The body is the subagent's behavioral contract: its I/O enumeration must
+    match the machine-truth frontmatter exactly (no placeholders, no drift)."""
+    section = _section_text(body, "Artifact I/O Contract")
+    inputs_line = re.search(r"^inputs:\s*(.*)$", section, re.M)
+    outputs_line = re.search(r"^outputs:\s*(.*)$", section, re.M)
+    if inputs_line is None or outputs_line is None:
+        raise ValueError("missing body I/O enumeration")
+    body_inputs = set(BODY_PATH_RE.findall(inputs_line.group(1)))
+    body_outputs = set(BODY_PATH_RE.findall(outputs_line.group(1)))
+    front_inputs = {item["path"] for item in data["inputs"]}
+    front_outputs = {item["target_path"] for item in data["outputs"]}
+    if body_inputs != front_inputs or body_outputs != front_outputs:
+        raise ValueError("body I/O enumeration contradicts frontmatter")
+
+
 def _artifact_identity(path):
     parts = path.split("/")
     if len(parts) != 3 or parts[0] != "artifacts" or parts[1] not in ALLOWED_SLUGS:
@@ -150,6 +178,7 @@ def parse_and_validate_contract(path):
             raise ValueError("inconsistent output")
         if item["template"] != f"templates/{item['artifact_name']}-template.md":
             raise ValueError("invalid output template reference")
+    _validate_io_consistency(body, data)
     return data
 
 
