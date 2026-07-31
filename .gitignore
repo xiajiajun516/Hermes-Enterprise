@@ -17,3 +17,5 @@ __pycache__/
 # Local session databases
 *.db
 *.sqlite
+# Local planning documents (not part of the shipped profile)
+docs/
