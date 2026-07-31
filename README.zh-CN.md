@@ -15,10 +15,10 @@
 **Linux / macOS / Git Bash:**
 ```bash
 # 主编排 skill
-git clone https://github.com/xiajiajun516/Hermes-Enterprise.git ~/.hermes/skills/software-engineering-team
+git clone https://github.com/xiajiajun516/Hermes-Enterprise.git ~/.config/hermes/skills/software-engineering-team
 
 # 安装子 agent skills(优化分发)
-cp -r ~/.hermes/skills/software-engineering-team/skills/* ~/.hermes/skills/
+cp -r ~/.config/hermes/skills/software-engineering-team/skills/* ~/.config/hermes/skills/
 ```
 
 **Windows (PowerShell / CMD):**
@@ -54,7 +54,7 @@ hermes -s software-engineering-team
 - **零配置**:直接继承当前会话的 LLM 提供商、API 密钥和工具链。
 - **工件驱动协作**:通过生成持久的 Markdown/代码工件(`spec.md`、`architecture.md`、`compliance-report.md` 等)消除对聊天历史的依赖。
 - **最小上下文策略**:严格限制子 agent 上下文为必要工件,减少 token 消耗。
-- **自动化验证门禁**:将 Python 脚本(`validate_artifact.py`、`validate_kanban.py`)集成到执行管线中,实施 schema 强制。
+- **自动化验证门禁**:将 Python 脚本(`validate_artifact.py`、`update_kanban.py --check`)集成到执行管线中,实施 schema 强制。
 - **合规门禁与自纠错循环**:在编码开始前自动依据设计/技术标准审计规格。
 - **自进化治理**:`Rule Manager Agent` 根据事后复盘和用户指令更新规则及 Scope Recall 记忆(`project` / `ops` 目标范围)。
 - **审批门禁**:高风险操作(删除、数据库迁移、部署)需要通过 Hermes `clarify` 进行人工确认。
@@ -77,7 +77,7 @@ hermes -s software-engineering-team
 ```text
 Hermes-Enterprise/
 ├── SKILL.md                # Master 编排入口
-├── PLAN.md                 # 完整架构与计划规格
+├── PLAN.md                 # 架构与计划概览(英文)
 ├── README.md               # 概览与 Skill 安装指南(英文,默认)
 ├── README.zh-CN.md         # 概览与 Skill 安装指南(简体中文)
 ├── LICENSE                 # MIT License
@@ -89,9 +89,6 @@ Hermes-Enterprise/
 │   ├── se-team-qa-release/SKILL.md
 │   ├── se-team-rule-manager/SKILL.md
 │   └── se-team-rules/SKILL.md
-├── references/             # 关联引用与提示词配置(legacy)
-│   ├── agents/             # Agent 提示词配置 (01 to 07)
-│   └── rules/              # 项目设计令牌与安全规则(legacy)
 ├── templates/              # 标准交付工件模板
 ├── artifacts/              # 标准输出工件位置
 ├── kanban/                 # 任务管线看板跟踪(`kanban.md`)
@@ -104,13 +101,13 @@ Hermes-Enterprise/
 
 | Agent | 角色 | Hermes Skill | 主要交付物 |
 | :--- | :--- | :--- | :--- |
-| **01. Workflow Manager** | 控制与管线管理 | `software-engineering-team` (Master) | `kanban.md` |
-| **02. Product & Research** | 需求与可行性 | `se-team-product-research` | `spec.md`, `research.md` |
-| **03. Architect Agent** | 系统与数据库架构 | `se-team-architect` | `architecture.md`, `implementation-plan.md` |
-| **04. Engineer Agent** | 代码与单元测试实现 | `se-team-engineer` | 源代码 |
-| **05. Compliance Reviewer**| 静态门禁审计 | `se-team-compliance-reviewer` | `compliance-report.md` |
-| **06. QA & Release** | 审查、测试与部署 | `se-team-qa-release` | `review.md`, `test-report.md`, `release.md` |
-| **07. Rule Manager** | 治理与进化 | `se-team-rule-manager` | 规则更新与 Scope Recall |
+| **01. Workflow Manager** | 控制与管线管理 | `software-engineering-team` (Master) | 合同与 manifest |
+| **02. Product & Research** | 需求与可行性 | `se-team-product-research` | `research`、`spec-draft`、`spec` |
+| **03. Architect Agent** | 系统与数据库架构 | `se-team-architect` | `architecture`、`implementation-plan` |
+| **04. Engineer Agent** | 代码与单元测试实现 | `se-team-engineer` | `implementation-report` |
+| **05. Compliance Reviewer**| 静态门禁审计 | `se-team-compliance-reviewer` | `compliance-report` |
+| **06. QA & Release** | 审查、测试与部署 | `se-team-qa-release` | `review`、`test-report`、`release` |
+| **07. Rule Manager** | 治理与进化 | `se-team-rule-manager` | `governance-report` |
 | — | 共享项目规则 | `se-team-rules` | 所有 agents 加载 |
 
 ### 分发如何工作(优化版)
@@ -121,7 +118,7 @@ Hermes-Enterprise/
 ```
 delegate_task(
   goal="Design system architecture for user auth service",
-  context="Load skill: se-team-architect. Load se-team-rules for standards. Read artifacts/spec.md. Output artifacts/architecture.md. Respond in Chinese."
+  context="Load skill: se-team-architect. Load se-team-rules for standards. Read artifacts/product-research/<run-id>__spec.md. Output artifacts/architect/<run-id>__architecture.md. Respond in Chinese."
 )
 ```
 

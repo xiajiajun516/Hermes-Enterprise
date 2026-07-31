@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from manifest_lineage import validate_manifest, validate_manifest_data, validate_parent_graph
 
-from fixtures import RUN, make_repo
+from fixtures import RUN, SOURCE_RUN, make_repo
 
 
 class LineageTests(unittest.TestCase):
@@ -85,6 +85,43 @@ class LineageTests(unittest.TestCase):
             rel = f"artifacts/runs/{RUN}__manifest.json"
             with self.assertRaises(ValueError):
                 validate_manifest_data(payload, rel, root, require_tracked=False)
+
+    def test_producer_lineage_required(self):
+        directory, root, manifest, _ = self.fixture()
+        with directory:
+            producer_rel = f"artifacts/runs/{SOURCE_RUN}__manifest.json"
+            subprocess.run(["git", "-C", str(root), "rm", "-q", "--cached", producer_rel], check=True)
+            with self.assertRaisesRegex(ValueError, "producer lineage missing"):
+                validate_manifest(manifest.relative_to(root).as_posix(), root)
+
+    def test_closed_at_must_follow_created_at(self):
+        directory, root, manifest, payload = self.fixture()
+        with directory:
+            payload["closed_at_utc"] = "2026-07-30T15:49:00.000Z"
+            manifest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "closed_at precedes created_at"):
+                validate_manifest(manifest.relative_to(root).as_posix(), root)
+
+    def test_created_at_must_match_contract(self):
+        directory, root, manifest, payload = self.fixture()
+        with directory:
+            payload["created_at_utc"] = "2099-01-01T00:00:00.000Z"
+            payload["closed_at_utc"] = "2099-01-01T00:00:01.000Z"
+            manifest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "contract mismatch"):
+                validate_manifest(manifest.relative_to(root).as_posix(), root)
+
+    def test_verification_result_must_match_exit_code(self):
+        directory, root, manifest, payload = self.fixture()
+        with directory:
+            payload["status"] = "blocked"
+            payload["verification"] = [{
+                "command": "gate", "expected_exit_code": 0, "exit_code": 0,
+                "result": "FAIL", "evidence_paths": [],
+            }]
+            manifest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "contradicts exit code"):
+                validate_manifest(manifest.relative_to(root).as_posix(), root)
 
 
 if __name__ == "__main__":

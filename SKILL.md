@@ -1,6 +1,6 @@
 ---
 name: software-engineering-team
-version: 1.5.0
+version: 1.6.0
 description: "Forward-only Contract-driven Software Engineering AI Team orchestration."
 category: software-development
 ---
@@ -84,6 +84,10 @@ report: English; include the Contract run_id, exact input/output paths, SHA-256 
 
 Before dispatching, the Master must validate the Contract with
 `python scripts/validate_artifact.py <exact-contract-path>` and accept only tracked manifest lineage.
+
+Before reading any input, the Master (or the Subagent) must authorize it with
+`python scripts/validate_artifact.py --authorize <exact-contract-path> <input-path>`;
+only authorized inputs may be read.
 
 | Stage | slug | standard outputs |
 |---|---|---|

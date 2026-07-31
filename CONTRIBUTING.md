@@ -20,6 +20,6 @@ contributors must do this locally; CI also enforces it via the PR drift check).
 
 ## Submitting Pull Requests
 1. Fork the repository and create your branch from `main`.
-2. Ensure `python scripts/validate_kanban.py` passes without errors.
+2. Ensure `python scripts/update_kanban.py --check` passes (regenerate the board with `python scripts/update_kanban.py` if it drifts).
 3. Open a Pull Request detailing your changes and reasoning.
 4. **Merge discipline**: the full test suite must pass on the final target tree (CI on the PR/push target). A green run on an earlier tree does not authorize a merge.

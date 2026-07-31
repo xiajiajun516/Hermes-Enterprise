@@ -68,6 +68,9 @@ def _validate_verification(records, status):
         )
         if record["result"] not in {"PASS", "FAIL", "BLOCKED"} or not evidence_ok:
             raise ValueError("invalid verification fields")
+        consistent = (record["result"] == "PASS") == (record["exit_code"] == record["expected_exit_code"])
+        if not consistent:
+            raise ValueError("verification result contradicts exit code")
     all_pass = all(record["result"] == "PASS" and record["exit_code"] == record["expected_exit_code"] for record in records)
     if status == "completed" and not all_pass:
         raise ValueError("failed verification")
@@ -101,6 +104,8 @@ def validate_manifest_data(data, rel, root, require_tracked=True):
         raise ValueError("manifest run id mismatch")
     _require_time(data["created_at_utc"])
     _require_time(data["closed_at_utc"])
+    if data["closed_at_utc"] < data["created_at_utc"]:
+        raise ValueError("closed_at precedes created_at")
     if data["parent_run_id"] is not None and (not isinstance(data["parent_run_id"], str) or not RUN_RE.fullmatch(data["parent_run_id"])):
         raise ValueError("invalid parent run id")
     tracked = _tracked_all(root)
@@ -110,7 +115,13 @@ def validate_manifest_data(data, rel, root, require_tracked=True):
     _require_file(root, tracked, contract_path, data["contract_sha256"], "contract")
     contract = parse_and_validate_contract(root / contract_path)
     validate_template_files(contract, root)
-    if contract["run_id"] != data["run_id"] or contract["parent_run_id"] != data["parent_run_id"] or contract["inputs"] != data["inputs"]:
+    mismatch = (
+        contract["run_id"] != data["run_id"]
+        or contract["parent_run_id"] != data["parent_run_id"]
+        or contract["inputs"] != data["inputs"]
+        or contract["created_at_utc"] != data["created_at_utc"]
+    )
+    if mismatch:
         raise ValueError("contract mismatch")
     if not isinstance(data["outputs"], list) or len(data["outputs"]) != len(contract["outputs"]):
         raise ValueError("output mismatch")
@@ -120,9 +131,25 @@ def validate_manifest_data(data, rel, root, require_tracked=True):
         if not isinstance(output, dict) or set(output) != {"path", "artifact_name", "sha256"} or not output_matches:
             raise ValueError("output mismatch")
         _require_file(root, tracked, output["path"], output["sha256"], "output")
+    producer_outputs = {}
+    for manifest_rel in tracked_manifest_paths(root):
+        try:
+            mdata = json.loads((root / manifest_rel).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(mdata, dict) or not isinstance(mdata.get("run_id"), str) or not isinstance(mdata.get("outputs"), list):
+            continue
+        producer_outputs[mdata["run_id"]] = {
+            (output.get("path"), output.get("artifact_name"))
+            for output in mdata["outputs"]
+            if isinstance(output, dict)
+        }
     for input_item in data["inputs"]:
         if not isinstance(input_item, dict) or set(input_item) != {"path", "artifact_name", "sha256", "producer_run_id"}:
             raise ValueError("invalid manifest input")
         _require_file(root, tracked, input_item["path"], input_item["sha256"], "input")
+        producer = input_item["producer_run_id"]
+        if producer not in producer_outputs or (input_item["path"], input_item["artifact_name"]) not in producer_outputs[producer]:
+            raise ValueError(f"BLOCKED: input producer lineage missing: run {producer} does not declare {input_item['path']}")
     _validate_verification(data["verification"], data["status"])
     return data

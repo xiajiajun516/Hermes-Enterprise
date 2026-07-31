@@ -35,8 +35,6 @@ jobs:
               exit 1
             fi
           fi
-      - name: Validate Kanban
-        run: python scripts/validate_kanban.py kanban/kanban.md
   sync-kanban:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -58,6 +56,7 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add kanban/kanban.md
             git commit -m "chore(kanban): sync derived board with lineage [skip ci]"
+            git pull --rebase
             git push
           fi
   check-kanban:

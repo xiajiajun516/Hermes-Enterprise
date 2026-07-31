@@ -211,5 +211,10 @@ class ContractTests(unittest.TestCase):
                 self.assertIn(token, text)
 
 
+    def test_quoted_yaml_markers_accepted(self):
+        parsed = self.parse(contract_text(agent_display_name='"QA & Release"'))
+        self.assertEqual(parsed["agent_display_name"], "QA & Release")
+
+
 if __name__ == "__main__":
     unittest.main()

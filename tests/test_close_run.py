@@ -52,7 +52,7 @@ class CloseRunTests(unittest.TestCase):
             self.assertTrue((root / manifest_rel).is_file())
             subprocess.run(["git", "-C", str(root), "add", manifest_rel], check=True)
             self.assertEqual(validate_manifest(manifest_rel, root)["status"], "completed")
-            self.assertEqual(tracked_manifest_paths(root), [manifest_rel])
+            self.assertIn(manifest_rel, tracked_manifest_paths(root))
 
     def test_manifest_rerun_is_rejected_as_immutable(self):
         directory, root, _, _ = make_repo_without_manifest()
@@ -186,7 +186,7 @@ class EndToEndRehearsalTests(unittest.TestCase):
                 subprocess.run(["git", "-C", str(root), "add", "artifacts", "templates"], check=True)
                 code, text = close(root, "--contract", contract.relative_to(root).as_posix(),
                                    "--status", "completed", "--verification", VERIFICATION_PASS,
-                                   "--closed-at", CLOSED_AT)
+                                   "--closed-at", "2026-07-31T13:00:00.000Z")
                 self.assertEqual(code, 0, text)
                 subprocess.run(["git", "-C", str(root), "add", f"artifacts/runs/{run}__manifest.json"], check=True)
                 previous_output = {"run": run, "slug": slug}

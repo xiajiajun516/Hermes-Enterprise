@@ -41,13 +41,15 @@ def collect_lineage(root):
     for contract_rel in _tracked_paths(root, "artifacts/runs/*__contract.md"):
         try:
             contract = parse_and_validate_contract(root / contract_rel)
-        except (OSError, ValueError):
+        except (OSError, ValueError) as error:
+            print(f"WARN: skipped corrupt contract {contract_rel}: {error}", file=sys.stderr)
             continue
         items[contract["run_id"]] = {"status": "in_flight", "agent_slug": contract["agent_slug"]}
     for manifest_rel in _tracked_paths(root, "artifacts/runs/*__manifest.json"):
         try:
             data = json.loads((root / manifest_rel).read_text(encoding="utf-8"))
-        except (OSError, ValueError):
+        except (OSError, ValueError) as error:
+            print(f"WARN: skipped corrupt manifest {manifest_rel}: {error}", file=sys.stderr)
             continue
         run_id = data.get("run_id")
         if run_id not in items:

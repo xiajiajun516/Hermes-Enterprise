@@ -60,9 +60,12 @@ def _frontmatter(text):
     if end < 0:
         raise ValueError("unterminated frontmatter")
     lines, data, current, item = text[4:end].splitlines(), {}, None, None
-    for line in lines:
-        if "\t" in line or any(marker in line for marker in "&*!"):
-            raise ValueError("ambiguous YAML")
+    for index, line in enumerate(lines):
+        if "\t" in line:
+            raise ValueError(f"ambiguous YAML (line {index + 1}): tab character")
+        unquoted = re.sub(r'"[^"]*"|\'[^\']*\'', "", line)
+        if any(marker in unquoted for marker in "&*!"):
+            raise ValueError(f"ambiguous YAML (line {index + 1}): unquoted YAML marker")
         if re.match(r"^[^ :]+:", line):
             key, value = line.split(":", 1)
             if key in data:

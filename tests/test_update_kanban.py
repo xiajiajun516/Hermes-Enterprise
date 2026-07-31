@@ -12,7 +12,6 @@ sys.path.insert(0, str(PROJECT / "scripts"))
 
 from fixtures import chain_contract, digest  # noqa: E402
 from update_kanban import collect_lineage, main as kanban_main, render_board  # noqa: E402
-from validate_kanban import validate_kanban  # noqa: E402
 
 VERIFICATION = [{"command": "test", "expected_exit_code": 0, "exit_code": 0, "result": "PASS", "evidence_paths": []}]
 
@@ -113,19 +112,18 @@ class UpdateKanbanTests(unittest.TestCase):
                 self.assertEqual(kanban_main(["--root", str(root)]), 0)
             self.assertIn("20260731T100000-001 (qa-release)", kanban.read_text(encoding="utf-8"))
 
-    def test_generated_board_always_passes_validate_kanban(self):
+    def test_corrupt_manifest_warns_and_is_skipped(self):
         directory, root = fresh_repo()
         with directory:
             add_run(root, "20260731T100000-001", "architect", "2b", "architecture")
-            add_run(root, "20260731T110000-002", "qa-release", "2e", "release", parent="20260731T100000-001")
-            add_run(root, "20260731T120000-003", "engineer", "2d", "implementation-report", status="failed")
-            board = render_board(collect_lineage(root))
-            with tempfile.TemporaryDirectory() as tmp:
-                path = Path(tmp) / "kanban.md"
-                path.write_text(board, encoding="utf-8")
-                output = io.StringIO()
-                with contextlib.redirect_stdout(output):
-                    self.assertTrue(validate_kanban(path))
+            bad = root / "artifacts/runs/20260731T100000-001__manifest.json"
+            bad.write_text("{ broken", encoding="utf-8")
+            subprocess.run(["git", "-C", str(root), "add", "artifacts"], check=True)
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                board = render_board(collect_lineage(root))
+            self.assertIn("WARN: skipped corrupt manifest", stderr.getvalue())
+            self.assertIn("- **Implementation**", board)
 
     def test_cards_sorted_descending_by_run_id(self):
         directory, root = fresh_repo()

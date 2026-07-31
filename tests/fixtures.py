@@ -135,8 +135,33 @@ def make_repo(with_manifest=True, contract=None, template=TEMPLATE, with_contrac
     for path, content in ((source, "architecture"), (output, "report")):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")
+    # Producer run: a fully valid, tracked architect run whose outputs declare the
+    # source artifact (required by the input-lineage check).
+    template_arch = root / "templates/architecture-template.md"
+    template_arch.write_text("# Architecture — template\n## Run Identity\n## Source Artifacts\n", encoding="utf-8")
+    producer_contract = root / f"artifacts/runs/{SOURCE_RUN}__contract.md"
+    producer_contract.parent.mkdir(parents=True, exist_ok=True)
+    producer_contract.write_text(chain_contract(SOURCE_RUN, "architect", "2b", "architecture"), encoding="utf-8")
+    producer_manifest = root / f"artifacts/runs/{SOURCE_RUN}__manifest.json"
+    producer_payload = {
+        "manifest_version": "1.0",
+        "run_id": SOURCE_RUN,
+        "contract_path": producer_contract.relative_to(root).as_posix(),
+        "contract_sha256": digest(producer_contract),
+        "parent_run_id": None,
+        "status": "completed",
+        "inputs": [],
+        "outputs": [{"path": source.relative_to(root).as_posix(), "artifact_name": "architecture", "sha256": digest(source)}],
+        "verification": [{
+            "command": "python -m unittest", "expected_exit_code": 0, "exit_code": 0,
+            "result": "PASS", "evidence_paths": [],
+        }],
+        "created_at_utc": "2026-07-30T15:00:00.001Z",
+        "closed_at_utc": "2026-07-30T15:01:00.000Z",
+    }
+    producer_manifest.write_text(json.dumps(producer_payload, indent=2), encoding="utf-8")
     if with_contract:
-        contract_path.parent.mkdir(parents=True)
+        contract_path.parent.mkdir(parents=True, exist_ok=True)
         contract_path.write_text(contract or strict_contract(RUN, digest(source)), encoding="utf-8")
     manifest = root / f"artifacts/runs/{RUN}__manifest.json"
     payload = None

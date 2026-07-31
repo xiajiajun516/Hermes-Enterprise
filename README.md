@@ -15,10 +15,10 @@ You can install and use this skill across all your Hermes sessions using any of 
 **Linux / macOS / Git Bash:**
 ```bash
 # Main orchestrator skill
-git clone https://github.com/xiajiajun516/Hermes-Enterprise.git ~/.hermes/skills/software-engineering-team
+git clone https://github.com/xiajiajun516/Hermes-Enterprise.git ~/.config/hermes/skills/software-engineering-team
 
 # Install sub-agent skills (optimized dispatch)
-cp -r ~/.hermes/skills/software-engineering-team/skills/* ~/.hermes/skills/
+cp -r ~/.config/hermes/skills/software-engineering-team/skills/* ~/.config/hermes/skills/
 ```
 
 **Windows (PowerShell / CMD):**
@@ -54,7 +54,7 @@ Once installed, simply invoke the skill in any active Hermes conversation:
 - **Zero Configuration**: Inherits your active session's LLM provider, API keys, and toolchain directly.
 - **Artifact-Driven Collaboration**: Eliminates dependency on chat history by producing durable Markdown/Code artifacts (`spec.md`, `architecture.md`, `compliance-report.md`, etc.).
 - **Minimal Context Policy**: Strictly limits subagent contexts to essential artifacts, reducing token consumption.
-- **Automated Validation Gates**: Integrates Python scripts (`validate_artifact.py`, `validate_kanban.py`) into execution pipelines for schema enforcement.
+- **Automated Validation Gates**: Integrates Python scripts (`validate_artifact.py`, `update_kanban.py --check`) into execution pipelines for schema enforcement.
 - **Compliance Gate & Self-Correction Loop**: Automatically audits specifications against design/tech standards before coding begins.
 - **Self-Evolving Governance**: Features a `Rule Manager Agent` that updates rules and Scope Recall memory (`project` / `ops` target scopes) based on post-mortems and user directives.
 - **Approval Gates**: High-risk operations (deletions, DB migrations, deployments) require human confirmation via Hermes `clarify`.
@@ -77,7 +77,7 @@ When paired with the `scope-recall-hermes` plugin, this skill automatically stor
 ```text
 Hermes-Enterprise/
 ├── SKILL.md                # Master Orchestrator Entry Point
-├── PLAN.md                 # Complete Architecture & Plan Specification (Chinese)
+├── PLAN.md                 # Architecture & Plan Overview (English)
 ├── README.md               # Overview & Skill Installation Guide
 ├── LICENSE                 # MIT License
 ├── skills/                 # Standalone Sub-Agent Skills (v1.1)
@@ -88,9 +88,6 @@ Hermes-Enterprise/
 │   ├── se-team-qa-release/SKILL.md
 │   ├── se-team-rule-manager/SKILL.md
 │   └── se-team-rules/SKILL.md
-├── references/             # Linked References & Prompt Configurations (legacy)
-│   ├── agents/             # Agent Prompt Configurations (01 to 07)
-│   └── rules/              # Project Design Tokens & Security Rules (legacy)
 ├── templates/              # Standard Deliverable Artifact Templates
 ├── artifacts/              # Standard Output Artifacts Location
 ├── kanban/                 # Task Pipeline Kanban Tracking (`kanban.md`)
@@ -103,13 +100,13 @@ Hermes-Enterprise/
 
 | Agent | Role | Hermes Skill | Main Deliverable |
 | :--- | :--- | :--- | :--- |
-| **01. Workflow Manager** | Controller & Pipeline Manager | `software-engineering-team` (Master) | `kanban.md` |
-| **02. Product & Research** | Requirements & Feasibility | `se-team-product-research` | `spec.md`, `research.md` |
-| **03. Architect Agent** | System & DB Architecture | `se-team-architect` | `architecture.md`, `implementation-plan.md` |
-| **04. Engineer Agent** | Code & Unit Test Implementation | `se-team-engineer` | Source Code |
-| **05. Compliance Reviewer**| Static Gatekeeper Audit | `se-team-compliance-reviewer` | `compliance-report.md` |
-| **06. QA & Release** | Review, Testing & Deployment | `se-team-qa-release` | `review.md`, `test-report.md`, `release.md` |
-| **07. Rule Manager** | Governance & Evolution | `se-team-rule-manager` | Rules update & Scope Recall |
+| **01. Workflow Manager** | Controller & Pipeline Manager | `software-engineering-team` (Master) | Contracts & manifests |
+| **02. Product & Research** | Requirements & Feasibility | `se-team-product-research` | `research`, `spec-draft`, `spec` |
+| **03. Architect Agent** | System & DB Architecture | `se-team-architect` | `architecture`, `implementation-plan` |
+| **04. Engineer Agent** | Code & Unit Test Implementation | `se-team-engineer` | `implementation-report` |
+| **05. Compliance Reviewer**| Static Gatekeeper Audit | `se-team-compliance-reviewer` | `compliance-report` |
+| **06. QA & Release** | Review, Testing & Deployment | `se-team-qa-release` | `review`, `test-report`, `release` |
+| **07. Rule Manager** | Governance & Evolution | `se-team-rule-manager` | `governance-report` |
 | — | Shared Project Rules | `se-team-rules` | Loaded by all agents |
 
 ### How Dispatch Works (Optimized)
@@ -120,7 +117,7 @@ Hermes-Enterprise/
 ```
 delegate_task(
   goal="Design system architecture for user auth service",
-  context="Load skill: se-team-architect. Load se-team-rules for standards. Read artifacts/spec.md. Output artifacts/architecture.md. Respond in Chinese."
+  context="Load skill: se-team-architect. Load se-team-rules for standards. Read artifacts/product-research/<run-id>__spec.md. Output artifacts/architect/<run-id>__architecture.md. Respond in Chinese."
 )
 ```
 

@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.6.0
+- Trust-chain hardening (audit round, 2026-07-31):
+  - Input producer lineage: every `inputs[].producer_run_id` must exist as a tracked
+    manifest whose `outputs` declare the consumed path + artifact name — fabricated
+    ancestors are rejected.
+  - Verification records must be self-consistent: `result: PASS` iff
+    `exit_code == expected_exit_code`.
+  - Time integrity: `closed_at_utc` must not precede `created_at_utc`; manifest
+    `created_at_utc` must equal the contract's.
+- `update_kanban.py` warns on corrupt lineage records instead of silently dropping them.
+- `self_health_check.py` distinguishes FAIL (exit 2) from BOOTSTRAP_PENDING (exit 1).
+- Removed `validate_kanban.py`: board drift is enforced by `update_kanban.py --check`
+  (PR job); the push job regenerates the board (sync job now rebases before pushing).
+- Contract frontmatter accepts YAML markers inside quoted values (e.g. `"QA & Release"`);
+  ambiguity errors now carry line numbers.
+- README (EN + zh-CN): install paths aligned with `sync_skills.py` defaults; layout,
+  agent matrix, and dispatch example updated to v1.5+ artifact model.
+- `SKILL.md`: `--authorize` step added to dispatch prerequisites.
+
 ## 1.5.0
 - **CI trustworthy in every state (U-01)**: bootstrap gate now derives mode from
   `git ls-files` — asserts `BOOTSTRAP_PENDING` (exit 1) only while no tracked manifests
@@ -27,7 +46,7 @@
 - **Test hardening (U-04…U-16)**: CWD-independent imports, shared `tests/fixtures.py`,
   4-space style with a `ruff` gate, `coverage` gate (≥80%), sequence-retry, positive-path,
   CLI-branch, FAIL-path, kanban-error-path, temporal parent-ordering and full 3-stage
-  end-to-end rehearsal tests (62 tests).
+  end-to-end rehearsal tests (64 tests).
 - **Derived live kanban (Phase 5)**: new `scripts/update_kanban.py` renders the board as a
   deterministic projection of the tracked lineage (bullet format, `--check` mode); CI
   auto-sync job on push (`[skip ci]`, `concurrency` group) and drift-check job on PRs.

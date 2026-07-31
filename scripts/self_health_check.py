@@ -19,7 +19,7 @@ def main(root=None):
         validate_parent_graph({item["run_id"]: item["parent_run_id"] for item in items})
     except (OSError, ValueError) as error:
         print("FAIL:", error)
-        return 1
+        return 2
     print("PASS: Git-tracked future manifest lineage valid")
     return 0
 

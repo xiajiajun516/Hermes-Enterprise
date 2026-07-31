@@ -48,7 +48,7 @@ class GitTrackingTests(unittest.TestCase):
             manifest.write_text("{", encoding="utf-8")
             subprocess.run(["git", "-C", str(root), "add", manifest.relative_to(root).as_posix()], check=True)
             failed = self.health(root)
-            self.assertEqual(failed.returncode, 1)
+            self.assertEqual(failed.returncode, 2)
             self.assertIn("FAIL:", failed.stdout)
             self.assertNotIn("PASS:", failed.stdout)
 
@@ -179,7 +179,7 @@ class GitTrackingTests(unittest.TestCase):
             manifest.write_text("{", encoding="utf-8")
             subprocess.run(["git", "-C", str(root), "add", manifest.relative_to(root).as_posix()], check=True)
             with contextlib.redirect_stdout(io.StringIO()) as out:
-                self.assertEqual(health_main(root), 1)
+                self.assertEqual(health_main(root), 2)
                 self.assertIn("FAIL:", out.getvalue())
 
 
