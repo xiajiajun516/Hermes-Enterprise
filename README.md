@@ -2,7 +2,7 @@
 
 An enterprise-grade, artifact-driven, self-evolving AI software engineering team **Master Skill** for **Hermes Agent**.
 
-[中文架构方案 (Chinese Specification)](./PLAN.md)
+[中文版 (Chinese Version)](./README.zh-CN.md)
 
 ---
 
