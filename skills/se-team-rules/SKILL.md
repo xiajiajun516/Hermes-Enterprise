@@ -8,6 +8,8 @@ category: software-development
 
 This skill contains all project standards and policies. Every agent in the Software Engineering AI Team pipeline loads this skill to ensure consistent compliance.
 
+Output templates: none — this skill is a rules source consumed by all agents; it produces no artifacts.
+
 ---
 
 ## 1. Design System & UI/UX Standards

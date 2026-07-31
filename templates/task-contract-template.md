@@ -34,7 +34,7 @@ scope: <authorized-work-boundary>
 source: <each-authoritative-input-path-and-SHA-256>
 
 ## Environment SOP
-command: cd /c/Repository/hermes-enterprise-profile-push && test "$(pwd)" = "/c/Repository/hermes-enterprise-profile-push" && <prerequisite-checks>
+command: cd <repo-root> && test "$(pwd)" = "<repo-root>" && <prerequisite-checks>
 
 ## Artifact I/O Contract
 inputs: <only-frontmatter-inputs; validate path, Git tracking and recomputed SHA before read>

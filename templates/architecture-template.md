@@ -1,18 +1,26 @@
-# Architecture Document Template
+# Architecture — <run-id>
+
+## Run Identity
+- **run_id**: <run-id>
+- **agent_slug**: architect
+- **stage**: <2b>
+- **contract**: artifacts/runs/<run-id>__contract.md
+- **created_at_utc**: <ISO-8601>
+
+## Source Artifacts
+- **inputs**: <paths matching contract inputs[]>
 
 ## 1. System Design & Module Structure
-```text
-Project Directory Tree
-```
+- **Directory Tree**: <full project directory tree of the proposed structure>
+- **Module Responsibilities**: <one line per module — what it owns and what it must not touch>
 
-## 2. Module Specifications
-- **Module A**: 
-- **Module B**: 
+## 2. Data Flow
+- **Request / Data Paths**: <how data flows between modules, end to end>
+- **Failure Modes per Module**: <for each module: what breaks, how it fails, and the observable symptom>
 
 ## 3. API & Data Model
-- **Endpoints**:
-- **DB Schema / Data Models**:
+- **Endpoints / Interfaces**: <exact signatures or route shapes>
+- **DB Schema / Data Models**: <fields, types, constraints>
 
 ## 4. Implementation Plan & Milestones
-1. Milestone 1
-2. Milestone 2
+- **Milestones**: <M1, M2, … with a short deliverable per milestone>

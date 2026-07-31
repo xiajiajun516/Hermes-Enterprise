@@ -1,7 +1,12 @@
-import hashlib, subprocess, sys, tempfile, unittest
+import hashlib
+import subprocess
+import sys
+import tempfile
+import unittest
 from pathlib import Path
 
-sys.path.insert(0, "scripts")
+PROJECT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT / "scripts"))
 from task_contract import authorized_input, parse_and_validate_contract
 
 RUN = "20260730T155029-637"
@@ -29,7 +34,7 @@ outputs:
   - agent_slug: "engineer"
     artifact_name: "implementation-report"
     target_path: "artifacts/engineer/{RUN}__implementation-report.md"
-    template: "templates/task-contract-template.md"
+    template: "templates/implementation-report-template.md"
     write_mode: "create-new"
 ---
 {body or """## Run Identity
@@ -69,7 +74,11 @@ class ContractTests(unittest.TestCase):
         for body in (
             contract_text().replace("## Final Report Protocol", "## Extra\nextra: no\n## Final Report Protocol"),
             contract_text().replace("## Goal & Scope\ngoal: strict validation\nscope: future run", "## Goal & Scope"),
-            contract_text().replace("## Goal & Scope", "## Environment SOP", 1).replace("## Environment SOP\ncommand: repository gate", "## Goal & Scope\ngoal: strict validation\nscope: future run", 1),
+            contract_text().replace("## Goal & Scope", "## Environment SOP", 1).replace(
+                "## Environment SOP\ncommand: repository gate",
+                "## Goal & Scope\ngoal: strict validation\nscope: future run",
+                1,
+            ),
         ):
             with self.subTest(body=body):
                 with self.assertRaises(ValueError):
@@ -85,6 +94,29 @@ class ContractTests(unittest.TestCase):
         ]
         for text in cases:
             with self.subTest(text=text):
+                with self.assertRaises(ValueError):
+                    self.parse(text)
+
+    def test_rejects_out_of_enum_tier_stage_language_and_slug_pairing(self):
+        cases = [
+            contract_text(tier='"P9"'),
+            contract_text(stage='"2z"'),
+            contract_text(language='"zh-CN"'),
+            contract_text(stage='"2a"'),
+        ]
+        for text in cases:
+            with self.subTest(text=text):
+                with self.assertRaises(ValueError):
+                    self.parse(text)
+
+    def test_rejects_wrong_or_missing_output_template_reference(self):
+        for replacement in (
+            "templates/spec-template.md",
+            "templates/nonexistent.md",
+            "TEMPLATES/implementation-report-template.md",
+        ):
+            text = contract_text().replace("templates/implementation-report-template.md", replacement, 1)
+            with self.subTest(replacement=replacement):
                 with self.assertRaises(ValueError):
                     self.parse(text)
 
@@ -108,8 +140,8 @@ class ContractTests(unittest.TestCase):
             self.assertTrue(authorized_input(contract, root, relative)["authorized"])
 
     def test_template_and_master_skill_encode_complete_contract_prompt(self):
-        template = Path("templates/task-contract-template.md").read_text(encoding="utf-8")
-        master = Path("SKILL.md").read_text(encoding="utf-8")
+        template = (PROJECT / "templates/task-contract-template.md").read_text(encoding="utf-8")
+        master = (PROJECT / "SKILL.md").read_text(encoding="utf-8")
         self.assertTrue(template.startswith("---\n"))
         for heading in (
             "Run Identity", "Goal & Scope", "Source of Truth", "Environment SOP",
@@ -124,6 +156,59 @@ class ContractTests(unittest.TestCase):
         for field in ("contract_version:", "run_id:", "created_at_utc:", "agent_slug:",
                       "parent_run_id:", "language:"):
             self.assertIn(field, template)
+
+    def test_task_contract_template_has_no_absolute_repo_path(self):
+        template = (PROJECT / "templates/task-contract-template.md").read_text(encoding="utf-8")
+        self.assertNotIn("C:/", template)
+        self.assertNotIn("/c/Repository/", template)
+        self.assertIn("<repo-root>", template)
+
+    def test_every_content_template_has_run_identity_and_source_artifacts(self):
+        content_templates = sorted((PROJECT / "templates").glob("*template.md"))
+        for template_path in content_templates:
+            if template_path.name == "task-contract-template.md":
+                continue
+            text = template_path.read_text(encoding="utf-8")
+            with self.subTest(template=template_path.name):
+                self.assertIn("## Run Identity", text)
+                self.assertIn("## Source Artifacts", text)
+                self.assertIn("<run-id>", text)
+
+    def test_every_agent_skill_references_its_output_templates(self):
+        wiring = {
+            "se-team-product-research": [
+                "templates/research-template.md", "templates/spec-draft-template.md",
+                "templates/spec-template.md",
+            ],
+            "se-team-architect": [
+                "templates/architecture-template.md", "templates/implementation-plan-template.md",
+            ],
+            "se-team-compliance-reviewer": ["templates/compliance-report-template.md"],
+            "se-team-engineer": ["templates/implementation-report-template.md"],
+            "se-team-qa-release": [
+                "templates/review-template.md", "templates/test-report-template.md",
+                "templates/release-template.md",
+            ],
+            "se-team-rule-manager": ["templates/governance-report-template.md"],
+            "se-team-rules": ["none"],
+        }
+        for skill, templates in wiring.items():
+            text = (PROJECT / "skills" / skill / "SKILL.md").read_text(encoding="utf-8")
+            for template in templates:
+                with self.subTest(skill=skill, template=template):
+                    self.assertIn(template, text)
+
+    def test_gate_templates_keep_their_status_lines(self):
+        checks = {
+            "compliance-report-template.md": "STATUS: PASS",
+            "review-template.md": "APPROVED",
+            "test-report-template.md": "PASS",
+            "release-template.md": "ROLLED_BACK",
+        }
+        for name, token in checks.items():
+            text = (PROJECT / "templates" / name).read_text(encoding="utf-8")
+            with self.subTest(template=name):
+                self.assertIn(token, text)
 
 
 if __name__ == "__main__":

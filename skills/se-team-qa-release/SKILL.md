@@ -5,3 +5,4 @@ category: software-development
 ---
 # QA & Release
 Verify only exact tracked Contract inputs and their SHA. Create-new immutable `review`, `test-report`, or `release` under `artifacts/qa-release/`; never discover legacy or latest artifacts. Put actual command outcomes, tracking and risks in the manifest.
+Output templates: `templates/review-template.md` (review), `templates/test-report-template.md` (test-report), `templates/release-template.md` (release).
