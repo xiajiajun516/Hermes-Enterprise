@@ -94,7 +94,8 @@ delegate_task(
   context="run: design-auth-flow. stage: design. "
           "output: docs/design/design-auth-flow-spec.md. "
           "rule: never overwrite other stages' output, never rewrite git history. "
-          "Load skill: se-team-design. Load se-team-rules. Commit your deliverable yourself. Respond in Chinese."
+          "load: Load skill: se-team-design. Load se-team-rules. "
+          "Commit your deliverable yourself. Respond in Chinese."
 )
 ```
 

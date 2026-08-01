@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.3
+- **Dispatch `load` clause**: the Master's dispatch convention now mandates a
+  `load:` field in every `delegate_task` context (`Load skill: <stage-role>.
+  Load se-team-rules.`). Verified against Hermes source: subagent system
+  prompts contain no skill index — they never auto-load skills; the `load`
+  clause is the only entry point. This closes the sole failure mode of
+  skill-less subagent runs. Pipeline sections now carry the exact load clause
+  per stage; README dispatch example updated.
+
 ## 2.0.2
 - **Role skill enrichment** (kept lightweight, no new scripts/files):
   - `se-team-design`: 5-step workflow (clarify → requirements → trade-offs →

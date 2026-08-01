@@ -1,6 +1,6 @@
 ---
 name: software-engineering-team
-version: 2.0.2
+version: 2.0.3
 description: "Lightweight 3-stage engineering team orchestration (design→engineer→QA)."
 category: software-development
 ---
@@ -18,7 +18,7 @@ Daily-driver edition: a three-stage pipeline (design → engineer → QA). Immut
 
 Every agent also loads `se-team-rules` for project standards.
 
-## Dispatch Convention (4 fields)
+## Dispatch Convention (4 fields + load clause)
 
 Every `delegate_task` context carries these fields — no contract file, no script validation; **a git ref is the validation**:
 
@@ -27,8 +27,10 @@ run:    <stage>-<short-slug>          # e.g. design-auth-flow
 stage:  design | engineer | qa
 output: <deliverable path per role table>
 rule:   Never overwrite another stage's output; never rewrite git history; obey se-team-rules
+load:   Load skill: <stage-role>. Load se-team-rules.
 ```
 
+- **`load` is mandatory**: subagents do NOT auto-load skills — their system prompt has no skill index. The `load` clause is the only entry point; a missing `load` means the subagent runs skill-less. Always write both the stage role skill and `se-team-rules` (stage → skill mapping is fixed by the Roles table above).
 - **Input = git ref**: the subtask works from the current branch HEAD (or an explicitly named commit).
 - **Commit = the subagent commits itself**: `git add` + `git commit -m "<type>(<stage>): <desc>"` — the stage tag in the message makes `git log` the lineage.
 - Upstream output is the next stage's input: QA consumes the engineer's commit.
@@ -36,13 +38,13 @@ rule:   Never overwrite another stage's output; never rewrite git history; obey 
 ## Pipeline
 
 ### 1. design
-Dispatch `se-team-design`: analyze the goal, produce one `spec.md` (requirements + architecture + implementation plan), commit it.
+Dispatch `se-team-design` (`load: Load skill: se-team-design. Load se-team-rules.`): analyze the goal, produce one `spec.md` (requirements + architecture + implementation plan), commit it.
 
 ### 2. engineer
-Dispatch `se-team-engineer`: TDD implementation (RED→GREEN→REFACTOR), produce code + `report.md`, commit it.
+Dispatch `se-team-engineer` (`load: Load skill: se-team-engineer. Load se-team-rules.`): TDD implementation (RED→GREEN→REFACTOR), produce code + `report.md`, commit it.
 
 ### 3. QA (soft gate)
-Dispatch `se-team-qa-release`:
+Dispatch `se-team-qa-release` (`load: Load skill: se-team-qa-release. Load se-team-rules.`):
 1. Run OCR review (`ocr review --audience agent`, or delegate mode) — advisory signal.
 2. Manual agent review → `review.md` with verdict: `APPROVED` / `CHANGES_REQUESTED` / `REJECTED`.
 
