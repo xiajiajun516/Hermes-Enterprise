@@ -2,8 +2,6 @@
 
 A lightweight, git-native, 3-stage AI software engineering team **Master Skill** for **Hermes Agent** — daily-driver edition (v2.0).
 
-[中文版 (Chinese Version)](./README.zh-CN.md)
-
 ---
 
 ## ⚡ Quick Skill Installation

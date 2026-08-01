@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1
+- **i18n cleanup**: repository is now English-only. Removed `README.zh-CN.md`
+  and its link in `README.md`; rewrote `templates/spec-template.md` placeholders
+  in English (the last Chinese content in the repo).
+
 ## 2.0.0
 - **Daily-driver rewrite**: the framework is now a lightweight, git-native,
   3-stage pipeline (`design → engineer → QA`). Breaking change — v1.x

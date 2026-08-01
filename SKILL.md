@@ -1,6 +1,6 @@
 ---
 name: software-engineering-team
-version: 2.0.0
+version: 2.0.1
 description: "Lightweight 3-stage engineering team orchestration (design→engineer→QA)."
 category: software-development
 ---
