@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.5
+- **Semgrep in the QA pipeline (layered review)**: QA now runs Semgrep first
+  (zero-token deterministic scan — pattern bugs / security rules are ground
+  truth, no LLM confirmation needed), then OCR/LLM reviews only the remaining
+  semantic questions, then the manual review issues the verdict.
+  - `se-team-qa-release`: new Step 1 (Semgrep) with `semgrep scan --config
+    auto --json`; steps renumbered; review-template gains a Semgrep findings
+    section.
+  - `scripts/install-deps.sh`: detects/installs Semgrep via pip (idempotent).
+  - README: prerequisites table + layered-pipeline note.
+
 ## 2.0.4
 - **Prerequisites & one-shot installer**: README gains a `Prerequisites &
   Dependencies` section (Git >= 2.41, Node >= 18, `ocr` CLI, Python >= 3.11)

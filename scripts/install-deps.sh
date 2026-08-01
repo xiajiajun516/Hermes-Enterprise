@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Hermes Enterprise — dependency checker / installer (idempotent).
 #
-# Verifies git, node, npm, python, and the ocr CLI (alibaba/open-code-review).
-# Installs only the ocr CLI via npm; the rest are reported with install hints
-# (git/node/python are system-level installs better done by the user's own
-# package manager). Safe to re-run at any time.
+# Verifies git, node, npm, python, semgrep, and the ocr CLI
+# (alibaba/open-code-review). Installs semgrep (pip) and ocr (npm); the rest
+# are reported with install hints (git/node/python are system-level installs
+# better done by the user's own package manager). Safe to re-run at any time.
 set -euo pipefail
 
 ok()   { echo "OK   $1"; }
@@ -44,6 +44,18 @@ elif PYVER=$(python --version 2>/dev/null); then
 else
   fail "python: not found — install Python >= 3.11 (https://python.org/)"
   exit 1
+fi
+
+# --- semgrep (deterministic zero-token scan layer for the QA gate) ------------
+if command -v semgrep >/dev/null 2>&1; then
+  ok "semgrep: $(semgrep --version)"
+else
+  echo "==> installing semgrep (pip)..."
+  if ! (python -m pip install semgrep 2>/dev/null || pip install semgrep 2>/dev/null); then
+    fail "semgrep: pip install failed — install manually (https://semgrep.dev/docs/getting-started/)"
+    exit 1
+  fi
+  ok "semgrep installed: $(semgrep --version)"
 fi
 
 # --- ocr CLI (optional but recommended for the QA gate) -----------------------

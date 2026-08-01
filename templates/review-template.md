@@ -6,6 +6,10 @@
 - **input commit**: <git ref>
 - **created_at_utc**: <ISO-8601>
 
+## Semgrep Findings (deterministic, zero-token)
+- **Command**: <semgrep scan --config auto --json>
+- **Findings**: <count by severity; fold into section 3 directly — ground truth, no LLM confirmation needed>
+
 ## OCR Mechanical Review (optional, advisory)
 - **Command**: <ocr review ... / ocr delegate preview>
 - **High findings**: <count + top items>
