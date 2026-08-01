@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.3
+- QA & Release skill gains an **optional** OCR mechanical-review step: if the
+  `ocr` CLI (alibaba/open-code-review) is installed, run `ocr review --audience
+  agent` (OCR-managed LLM) or `ocr delegate preview` + `ocr delegate rule`
+  (delegation mode, no OCR LLM needed) as a first-pass advisory signal before
+  the manual review. High/Medium findings are input signals only — Contract
+  verification and SHA checks always take precedence; raw JSON may be archived
+  under `artifacts/qa-release/` as an immutable artifact. Protocol, scripts,
+  and templates unchanged.
+
 ## 1.6.2
 - Subagent handoff protocol: every Contract now instructs the agent to maintain
   `artifacts/handoffs/<run-id>__handoff.md` (gitignored scratch, fields:

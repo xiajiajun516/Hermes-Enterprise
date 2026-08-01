@@ -1,6 +1,6 @@
 ---
 name: software-engineering-team
-version: 1.6.2
+version: 1.6.3
 description: "Forward-only Contract-driven Software Engineering AI Team orchestration."
 category: software-development
 ---
