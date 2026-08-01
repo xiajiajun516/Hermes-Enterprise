@@ -30,6 +30,28 @@ Once cloned, Hermes automatically indexes all skills globally across **all** you
 
 ---
 
+## 📦 Prerequisites & Dependencies
+
+| Dependency | Purpose | Requirement |
+|:---|:---|:---|
+| Git | Pipeline core (a git ref is the validation) | >= 2.41 |
+| Node.js + npm | Install the `ocr` CLI | >= 18 |
+| `ocr` CLI (alibaba/open-code-review) | QA-stage OCR review gate | `npm i -g @alibaba-group/open-code-review` |
+| Python | `scripts/sync_skills.py` | >= 3.11 |
+
+**One-shot check & install** (idempotent; installs only `ocr` via npm, reports hints for the rest):
+
+```bash
+bash scripts/install-deps.sh
+```
+
+**OCR LLM (optional)**: the QA gate works in **delegation mode** out of the box — the host agent's own model performs the review, no OCR LLM key needed. Only if you want OCR to use its own LLM, configure one:
+
+```bash
+ocr config provider   # interactive: pick provider, enter key, pick model
+ocr config model
+```
+
 ### Method 2: Preload via CLI Flag
 ```bash
 hermes -s software-engineering-team

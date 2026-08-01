@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.4
+- **Prerequisites & one-shot installer**: README gains a `Prerequisites &
+  Dependencies` section (Git >= 2.41, Node >= 18, `ocr` CLI, Python >= 3.11)
+  with an OCR-delegation-mode note (no LLM key needed). New
+  `scripts/install-deps.sh` — idempotent check-and-install (installs only
+  `ocr` via npm, reports hints for system-level deps); handles the Windows
+  `python3` Microsoft-Store-alias stub by falling back to `python`.
+
 ## 2.0.3
 - **Dispatch `load` clause**: the Master's dispatch convention now mandates a
   `load:` field in every `delegate_task` context (`Load skill: <stage-role>.
