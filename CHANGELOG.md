@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.2
+- **Role skill enrichment** (kept lightweight, no new scripts/files):
+  - `se-team-design`: 5-step workflow (clarify → requirements → trade-offs →
+    architecture → plan) with stop-and-report guardrails.
+  - `se-team-engineer`: explicit RED→GREEN→REFACTOR evidence discipline,
+    scope discipline (implement ACs only), and verification requirements.
+  - `se-team-qa-release`: severity table (critical/high/medium/low) and
+    verdict rules (`REJECTED`/`CHANGES_REQUESTED`/`APPROVED`) so review
+    judgments no longer depend on general LLM common sense alone; OCR
+    findings must be confirmed by manual review before affecting a verdict.
+
 ## 2.0.1
 - **i18n cleanup**: repository is now English-only. Removed `README.zh-CN.md`
   and its link in `README.md`; rewrote `templates/spec-template.md` placeholders
