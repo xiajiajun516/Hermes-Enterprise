@@ -3,8 +3,7 @@ import re
 from datetime import datetime, timezone
 
 ALLOWED_SLUGS = {
-    "product-research": {"research", "spec-draft", "spec"},
-    "architect": {"architecture", "implementation-plan"},
+    "design": {"research", "spec-draft", "spec", "architecture", "implementation-plan"},
     "compliance-reviewer": {"compliance-report"},
     "engineer": {"implementation-report"},
     "qa-release": {"review", "test-report", "release"},

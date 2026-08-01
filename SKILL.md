@@ -1,6 +1,6 @@
 ---
 name: software-engineering-team
-version: 1.6.3
+version: 1.7.0
 description: "Forward-only Contract-driven Software Engineering AI Team orchestration."
 category: software-development
 ---
@@ -37,7 +37,7 @@ tier: "<P0|P1|P2>"
 stage: "<2a|2b|2c|2d|2e|2f>"
 attempt: <positive-integer>
 agent_display_name: "<display-name>"
-agent_slug: "<product-research|architect|compliance-reviewer|engineer|qa-release|rule-manager>"
+agent_slug: "<design|compliance-reviewer|engineer|qa-release|rule-manager>"
 parent_run_id: <null-or-YYYYMMDDTHHmmss-SSS>
 language: "en-US"
 inputs:
@@ -105,8 +105,7 @@ a wrong record is superseded by a new run, never rewritten.
 
 | Stage | slug | standard outputs |
 |---|---|---|
-|2a|product-research|research, spec-draft, spec|
-|2b|architect|architecture, implementation-plan|
+|2a|design|research, spec-draft, spec, architecture, implementation-plan|
 |2c|compliance-reviewer|compliance-report|
 |2d|engineer|implementation-report|
 |2e|qa-release|review, test-report, release|

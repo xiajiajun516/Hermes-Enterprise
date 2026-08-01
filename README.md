@@ -81,8 +81,7 @@ Hermes-Enterprise/
 ├── README.md               # Overview & Skill Installation Guide
 ├── LICENSE                 # MIT License
 ├── skills/                 # Standalone Sub-Agent Skills (v1.1)
-│   ├── se-team-product-research/SKILL.md
-│   ├── se-team-architect/SKILL.md
+│   ├── se-team-design/SKILL.md
 │   ├── se-team-engineer/SKILL.md
 │   ├── se-team-compliance-reviewer/SKILL.md
 │   ├── se-team-qa-release/SKILL.md
@@ -101,12 +100,11 @@ Hermes-Enterprise/
 | Agent | Role | Hermes Skill | Main Deliverable |
 | :--- | :--- | :--- | :--- |
 | **01. Workflow Manager** | Controller & Pipeline Manager | `software-engineering-team` (Master) | Contracts & manifests |
-| **02. Product & Research** | Requirements & Feasibility | `se-team-product-research` | `research`, `spec-draft`, `spec` |
-| **03. Architect Agent** | System & DB Architecture | `se-team-architect` | `architecture`, `implementation-plan` |
-| **04. Engineer Agent** | Code & Unit Test Implementation | `se-team-engineer` | `implementation-report` |
-| **05. Compliance Reviewer**| Static Gatekeeper Audit | `se-team-compliance-reviewer` | `compliance-report` |
-| **06. QA & Release** | Review, Testing & Deployment | `se-team-qa-release` | `review`, `test-report`, `release` |
-| **07. Rule Manager** | Governance & Evolution | `se-team-rule-manager` | `governance-report` |
+| **02. Design Agent** | Requirements, Feasibility & Architecture | `se-team-design` | `research`, `spec-draft`, `spec`, `architecture`, `implementation-plan` |
+| **03. Engineer Agent** | Code & Unit Test Implementation | `se-team-engineer` | `implementation-report` |
+| **04. Compliance Reviewer**| Static Gatekeeper Audit | `se-team-compliance-reviewer` | `compliance-report` |
+| **05. QA & Release** | Review, Testing & Deployment | `se-team-qa-release` | `review`, `test-report`, `release` |
+| **06. Rule Manager** | Governance & Evolution | `se-team-rule-manager` | `governance-report` |
 | — | Shared Project Rules | `se-team-rules` | Loaded by all agents |
 
 ### How Dispatch Works (Optimized)
@@ -117,11 +115,11 @@ Hermes-Enterprise/
 ```
 delegate_task(
   goal="Design system architecture for user auth service",
-  context="Load skill: se-team-architect. Load se-team-rules for standards. Read artifacts/product-research/<run-id>__spec.md. Output artifacts/architect/<run-id>__architecture.md. Respond in Chinese."
+  context="Load skill: se-team-design. Load se-team-rules for standards. Output artifacts/design/<run-id>__architecture.md. Respond in Chinese."
 )
 ```
 
-The subagent calls `skill_view('se-team-architect')` and gets its role, methodology, templates, and prohibitions — all self-contained. Rules are loaded via `skill_view('se-team-rules')`.
+The subagent calls `skill_view('se-team-design')` and gets its role, methodology, templates, and prohibitions — all self-contained. Rules are loaded via `skill_view('se-team-rules')`.
 
 ---
 

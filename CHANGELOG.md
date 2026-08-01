@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.7.0
+- **Merge Product & Research (2a) + Architect (2b) into a single Design Agent**
+  (`se-team-design`, stage `2a`, slug `design`): one role now produces
+  `research`, `spec-draft`, `spec`, `architecture`, and `implementation-plan`
+  under `artifacts/design/`. Rationale: spec→architecture is a strongly
+  sequential design phase sharing one compliance audit point; merging removes
+  one dispatch round-trip and artifact-handoff loss. The Workflow Manager
+  stays a pure controller — no execution is folded into it.
+- Scripts: `ALLOWED_SLUGS` drops `product-research`/`architect`, adds `design`
+  with the full artifact set; `STAGE_SLUGS["2a"] = "design"`. Stage `2b` is
+  deprecated and kept in the map only so any new 2b contract is rejected at
+  the ALLOWED_SLUGS gate; historical manifests are forward-only and untouched.
+- Skills: `skills/se-team-design/SKILL.md` replaces the two former skills;
+  all 5 output templates now declare `agent_slug: design`.
+- Docs: README/README.zh-CN role table (02 Design Agent, renumbered 03–06),
+  dispatch example, and directory tree updated.
+- Tests: fixtures and 7 test modules migrated to the merged slug/stage;
+  full suite green (72 tests, 60 subtests).
+
 ## 1.6.3
 - QA & Release skill gains an **optional** OCR mechanical-review step: if the
   `ocr` CLI (alibaba/open-code-review) is installed, run `ocr review --audience

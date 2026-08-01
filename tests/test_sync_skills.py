@@ -20,7 +20,7 @@ def make_repo():
     (root / "scripts").mkdir(exist_ok=True)
     (root / "scripts/validate_artifact.py").write_text("#!/usr/bin/env python3\n", encoding="utf-8")
     (root / "skills").mkdir(exist_ok=True)
-    for name in ("se-team-engineer", "se-team-architect", "se-team-rules"):
+    for name in ("se-team-engineer", "se-team-design", "se-team-rules"):
         skill_dir = root / "skills" / name
         skill_dir.mkdir(exist_ok=True)
         (skill_dir / "SKILL.md").write_text(f"# {name}\n", encoding="utf-8")
@@ -38,7 +38,7 @@ class SyncSkillsTests(unittest.TestCase):
                 self.assertTrue((target / "software-engineering-team/SKILL.md").is_file())
                 self.assertTrue((target / "software-engineering-team/scripts/validate_artifact.py").is_file())
                 self.assertTrue((target / "se-team-engineer/SKILL.md").is_file())
-                self.assertTrue((target / "se-team-architect/SKILL.md").is_file())
+                self.assertTrue((target / "se-team-design/SKILL.md").is_file())
                 self.assertFalse((target / "se-team-rules/SKILL.md").exists())
                 missing, drifted = check(repo, target)
                 self.assertEqual((missing, drifted), ([], []))

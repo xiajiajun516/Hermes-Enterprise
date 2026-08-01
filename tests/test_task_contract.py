@@ -26,7 +26,7 @@ def contract_text(body=None, **changes):
     return f'''---
 {frontmatter}
 inputs:
-  - path: "artifacts/architect/{INPUT_RUN}__architecture.md"
+  - path: "artifacts/design/{INPUT_RUN}__architecture.md"
     artifact_name: "architecture"
     sha256: "{SHA}"
     producer_run_id: "{INPUT_RUN}"
@@ -48,7 +48,7 @@ source: approved architecture
 ## Environment SOP
 command: repository gate
 ## Artifact I/O Contract
-inputs: artifacts/architect/20260730T150000-001__architecture.md
+inputs: artifacts/design/20260730T150000-001__architecture.md
 outputs: artifacts/engineer/20260730T155029-637__implementation-report.md
 ## Checksum / Verification
 sha256: lower hexadecimal
@@ -121,7 +121,7 @@ class ContractTests(unittest.TestCase):
                     self.parse(text)
 
     def test_authorized_input_requires_existing_tracked_actual_hash(self):
-        relative = f"artifacts/architect/{INPUT_RUN}__architecture.md"
+        relative = f"artifacts/design/{INPUT_RUN}__architecture.md"
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             subprocess.run(["git", "init", "-q", directory], check=True)
@@ -176,12 +176,10 @@ class ContractTests(unittest.TestCase):
 
     def test_every_agent_skill_references_its_output_templates(self):
         wiring = {
-            "se-team-product-research": [
+            "se-team-design": [
                 "templates/research-template.md", "templates/spec-draft-template.md",
-                "templates/spec-template.md",
-            ],
-            "se-team-architect": [
-                "templates/architecture-template.md", "templates/implementation-plan-template.md",
+                "templates/spec-template.md", "templates/architecture-template.md",
+                "templates/implementation-plan-template.md",
             ],
             "se-team-compliance-reviewer": ["templates/compliance-report-template.md"],
             "se-team-engineer": ["templates/implementation-report-template.md"],
@@ -217,15 +215,15 @@ class ContractTests(unittest.TestCase):
 
     def test_body_io_enumeration_must_match_frontmatter(self):
         body = contract_text().replace(
-            "inputs: artifacts/architect/20260730T150000-001__architecture.md",
-            "inputs: artifacts/architect/20990101T000000-001__architecture.md",
+            "inputs: artifacts/design/20260730T150000-001__architecture.md",
+            "inputs: artifacts/design/20990101T000000-001__architecture.md",
         )
         with self.assertRaisesRegex(ValueError, "contradicts frontmatter"):
             self.parse(body)
 
     def test_body_placeholder_io_rejected(self):
         body = contract_text().replace(
-            "inputs: artifacts/architect/20260730T150000-001__architecture.md",
+            "inputs: artifacts/design/20260730T150000-001__architecture.md",
             "inputs: exact",
         )
         with self.assertRaisesRegex(ValueError, "contradicts frontmatter"):

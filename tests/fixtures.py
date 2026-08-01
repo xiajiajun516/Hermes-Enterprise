@@ -31,7 +31,7 @@ agent_slug: "engineer"
 parent_run_id: {parent_line}
 language: "en-US"
 inputs:
-  - path: "artifacts/architect/{source_run}__architecture.md"
+  - path: "artifacts/design/{source_run}__architecture.md"
     artifact_name: "architecture"
     sha256: "{source_sha}"
     producer_run_id: "{source_run}"
@@ -53,7 +53,7 @@ source: architecture
 ## Environment SOP
 command: gate
 ## Artifact I/O Contract
-inputs: artifacts/architect/{source_run}__architecture.md
+inputs: artifacts/design/{source_run}__architecture.md
 outputs: artifacts/engineer/{run}__implementation-report.md
 ## Checksum / Verification
 sha256: actual
@@ -131,19 +131,19 @@ def make_repo(with_manifest=True, contract=None, template=TEMPLATE, with_contrac
     template_path = root / template
     template_path.parent.mkdir(parents=True, exist_ok=True)
     template_path.write_text(TEMPLATE_TEXT, encoding="utf-8")
-    source = root / f"artifacts/architect/{SOURCE_RUN}__architecture.md"
+    source = root / f"artifacts/design/{SOURCE_RUN}__architecture.md"
     output = root / f"artifacts/engineer/{RUN}__implementation-report.md"
     contract_path = root / f"artifacts/runs/{RUN}__contract.md"
     for path, content in ((source, "architecture"), (output, "report")):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")
-    # Producer run: a fully valid, tracked architect run whose outputs declare the
+    # Producer run: a fully valid, tracked design run whose outputs declare the
     # source artifact (required by the input-lineage check).
     template_arch = root / "templates/architecture-template.md"
     template_arch.write_text("# Architecture — template\n## Run Identity\n## Source Artifacts\n", encoding="utf-8")
     producer_contract = root / f"artifacts/runs/{SOURCE_RUN}__contract.md"
     producer_contract.parent.mkdir(parents=True, exist_ok=True)
-    producer_contract.write_text(chain_contract(SOURCE_RUN, "architect", "2b", "architecture"), encoding="utf-8")
+    producer_contract.write_text(chain_contract(SOURCE_RUN, "design", "2a", "architecture"), encoding="utf-8")
     producer_manifest = root / f"artifacts/runs/{SOURCE_RUN}__manifest.json"
     producer_payload = {
         "manifest_version": "1.0",

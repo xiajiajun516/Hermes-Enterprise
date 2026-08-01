@@ -82,7 +82,7 @@ class GitTrackingTests(unittest.TestCase):
     def test_validator_plain_artifact_branch(self):
         directory, root, _, _ = make_repo(with_manifest=False)
         with directory:
-            artifact = root / f"artifacts/architect/{SOURCE_RUN}__architecture.md"
+            artifact = root / f"artifacts/design/{SOURCE_RUN}__architecture.md"
             rel = artifact.relative_to(root).as_posix()
             result = self.validator(root, rel)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -104,7 +104,7 @@ class GitTrackingTests(unittest.TestCase):
         directory, root, _, _ = make_repo()
         with directory:
             contract = f"artifacts/runs/{RUN}__contract.md"
-            source = f"artifacts/architect/{SOURCE_RUN}__architecture.md"
+            source = f"artifacts/design/{SOURCE_RUN}__architecture.md"
             result = self.validator(root, "--authorize", contract, source)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("AUTHORIZED", result.stdout)
@@ -113,7 +113,7 @@ class GitTrackingTests(unittest.TestCase):
         directory, root, _, _ = make_repo()
         with directory:
             contract = f"artifacts/runs/{RUN}__contract.md"
-            source = f"artifacts/architect/{SOURCE_RUN}__architecture.md"
+            source = f"artifacts/design/{SOURCE_RUN}__architecture.md"
             subprocess.run(["git", "-C", str(root), "rm", "-q", "--cached", source], check=True)
             untracked = self.validator(root, "--authorize", contract, source)
             self.assertNotEqual(untracked.returncode, 0)
@@ -144,7 +144,7 @@ class GitTrackingTests(unittest.TestCase):
         with directory:
             contract_rel = f"artifacts/runs/{RUN}__contract.md"
             manifest_rel = manifest.relative_to(root).as_posix()
-            artifact_rel = f"artifacts/architect/{SOURCE_RUN}__architecture.md"
+            artifact_rel = f"artifacts/design/{SOURCE_RUN}__architecture.md"
             for rel, expected in (
                 (contract_rel, 0),
                 (manifest_rel, 0),

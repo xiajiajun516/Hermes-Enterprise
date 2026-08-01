@@ -28,7 +28,7 @@ class NamingTests(unittest.TestCase):
         positive = (
             "artifacts/engineer/20260730T155029-637__implementation-report.md",
             "artifacts/engineer/20260730T155029-637-001__implementation-report.md",
-            "artifacts/product-research/20260730T155029-637__spec.md",
+            "artifacts/design/20260730T155029-637__spec.md",
             "artifacts/runs/20260730T155029-637__contract.md",
             "artifacts/runs/20260730T155029-637__manifest.json",
         )
@@ -43,7 +43,7 @@ class NamingTests(unittest.TestCase):
         mismatches = (
             ("engineer", "release", good),
             ("qa-release", "implementation-report", good),
-            ("engineer", "implementation-report", good.replace("engineer/", "architect/")),
+            ("engineer", "implementation-report", good.replace("engineer/", "design/")),
             ("engineer", "implementation-report", good.replace("__implementation-report.md", "__spec.md")),
             ("engineer", "implementation-report", "artifacts/engineer/legacy.md"),
         )

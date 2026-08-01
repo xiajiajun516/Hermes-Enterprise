@@ -2,7 +2,7 @@
 
 ## Run Identity
 - **run_id**: <run-id>
-- **agent_slug**: architect
+- **agent_slug**: design
 - **stage**: <2b>
 - **contract**: artifacts/runs/<run-id>__contract.md
 - **created_at_utc**: <ISO-8601>

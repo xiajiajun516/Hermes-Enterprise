@@ -74,9 +74,9 @@ class UpdateKanbanTests(unittest.TestCase):
     def test_completed_non_terminal_run_lands_in_review(self):
         directory, root = fresh_repo()
         with directory:
-            add_run(root, "20260731T100000-001", "architect", "2b", "architecture")
+            add_run(root, "20260731T100000-001", "design", "2a", "architecture")
             board = render_board(collect_lineage(root))
-            self.assertIn("- **In Review**: ['20260731T100000-001 (architect)']", board)
+            self.assertIn("- **In Review**: ['20260731T100000-001 (design)']", board)
 
     def test_completed_terminal_run_lands_in_done(self):
         directory, root = fresh_repo()
@@ -115,7 +115,7 @@ class UpdateKanbanTests(unittest.TestCase):
     def test_corrupt_manifest_warns_and_is_skipped(self):
         directory, root = fresh_repo()
         with directory:
-            add_run(root, "20260731T100000-001", "architect", "2b", "architecture")
+            add_run(root, "20260731T100000-001", "design", "2a", "architecture")
             bad = root / "artifacts/runs/20260731T100000-001__manifest.json"
             bad.write_text("{ broken", encoding="utf-8")
             subprocess.run(["git", "-C", str(root), "add", "artifacts"], check=True)

@@ -91,7 +91,7 @@ class CloseRunTests(unittest.TestCase):
     def test_tampered_input_hash_rejected_and_nothing_written(self):
         directory, root, _, _ = make_repo_without_manifest()
         with directory:
-            source = root / f"artifacts/architect/{SOURCE_RUN}__architecture.md"
+            source = root / f"artifacts/design/{SOURCE_RUN}__architecture.md"
             source.write_text("tampered", encoding="utf-8")
             code, text = close(root, "--contract", f"artifacts/runs/{RUN}__contract.md",
                                "--status", "completed", "--verification", VERIFICATION_PASS,
@@ -166,7 +166,7 @@ class CloseRunTests(unittest.TestCase):
         directory, root, _, _ = make_repo_without_contract()
         with directory:
             filled = root / "filled-contract.md"
-            filled.write_text(strict_contract(RUN, digest(root / f"artifacts/architect/{SOURCE_RUN}__architecture.md")), encoding="utf-8")
+            filled.write_text(strict_contract(RUN, digest(root / f"artifacts/design/{SOURCE_RUN}__architecture.md")), encoding="utf-8")
             output = io.StringIO()
             with contextlib.redirect_stdout(output):
                 code = create_contract(filled, root)
@@ -213,8 +213,8 @@ class EndToEndRehearsalTests(unittest.TestCase):
             subprocess.run(["git", "-C", str(root), "commit", "-qm", "fixture: templates"], check=True)
 
             stages = [
-                ("20260731T100000-001", "product-research", "2a", "spec", None, None),
-                ("20260731T110000-002", "architect", "2b", "architecture", "20260731T100000-001", "spec"),
+                ("20260731T100000-001", "design", "2a", "spec", None, None),
+                ("20260731T110000-002", "design", "2a", "architecture", "20260731T100000-001", "spec"),
                 ("20260731T120000-003", "engineer", "2d", "implementation-report", "20260731T110000-002", "architecture"),
             ]
             previous_output = None

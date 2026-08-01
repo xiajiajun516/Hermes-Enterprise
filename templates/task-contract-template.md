@@ -6,7 +6,7 @@ tier: "<P0|P1|P2>"
 stage: "<2a|2b|2c|2d|2e|2f>"
 attempt: <positive-integer>
 agent_display_name: "<display-name>"
-agent_slug: "<product-research|architect|compliance-reviewer|engineer|qa-release|rule-manager>"
+agent_slug: "<design|compliance-reviewer|engineer|qa-release|rule-manager>"
 parent_run_id: <null-or-YYYYMMDDTHHmmss-SSS>
 language: "en-US"
 inputs:

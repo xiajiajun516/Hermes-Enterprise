@@ -20,7 +20,11 @@ HEADERS = [
 TIERS = {"P0", "P1", "P2"}
 STAGES = {"2a", "2b", "2c", "2d", "2e", "2f"}
 STAGE_SLUGS = {
-    "2a": "product-research",
+    "2a": "design",
+    # 2b ("architect") is deprecated since v1.7.0 — merged into "design".
+    # Kept in the map so any new 2b contract is rejected at the ALLOWED_SLUGS
+    # gate (architect is no longer a valid slug); historical manifests are
+    # forward-only and untouched.
     "2b": "architect",
     "2c": "compliance-reviewer",
     "2d": "engineer",

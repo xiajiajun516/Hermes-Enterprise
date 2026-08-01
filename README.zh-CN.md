@@ -82,8 +82,7 @@ Hermes-Enterprise/
 ├── README.zh-CN.md         # 概览与 Skill 安装指南(简体中文)
 ├── LICENSE                 # MIT License
 ├── skills/                 # 独立子 Agent Skills (v1.1)
-│   ├── se-team-product-research/SKILL.md
-│   ├── se-team-architect/SKILL.md
+│   ├── se-team-design/SKILL.md
 │   ├── se-team-engineer/SKILL.md
 │   ├── se-team-compliance-reviewer/SKILL.md
 │   ├── se-team-qa-release/SKILL.md
@@ -102,12 +101,11 @@ Hermes-Enterprise/
 | Agent | 角色 | Hermes Skill | 主要交付物 |
 | :--- | :--- | :--- | :--- |
 | **01. Workflow Manager** | 控制与管线管理 | `software-engineering-team` (Master) | 合同与 manifest |
-| **02. Product & Research** | 需求与可行性 | `se-team-product-research` | `research`、`spec-draft`、`spec` |
-| **03. Architect Agent** | 系统与数据库架构 | `se-team-architect` | `architecture`、`implementation-plan` |
-| **04. Engineer Agent** | 代码与单元测试实现 | `se-team-engineer` | `implementation-report` |
-| **05. Compliance Reviewer**| 静态门禁审计 | `se-team-compliance-reviewer` | `compliance-report` |
-| **06. QA & Release** | 审查、测试与部署 | `se-team-qa-release` | `review`、`test-report`、`release` |
-| **07. Rule Manager** | 治理与进化 | `se-team-rule-manager` | `governance-report` |
+| **02. Design Agent** | 需求、可行性与架构 | `se-team-design` | `research`、`spec-draft`、`spec`、`architecture`、`implementation-plan` |
+| **03. Engineer Agent** | 代码与单元测试实现 | `se-team-engineer` | `implementation-report` |
+| **04. Compliance Reviewer**| 静态门禁审计 | `se-team-compliance-reviewer` | `compliance-report` |
+| **05. QA & Release** | 审查、测试与发布 | `se-team-qa-release` | `review`、`test-report`、`release` |
+| **06. Rule Manager** | 治理与演进 | `se-team-rule-manager` | `governance-report` |
 | — | 共享项目规则 | `se-team-rules` | 所有 agents 加载 |
 
 ### 分发如何工作(优化版)
@@ -118,11 +116,11 @@ Hermes-Enterprise/
 ```
 delegate_task(
   goal="Design system architecture for user auth service",
-  context="Load skill: se-team-architect. Load se-team-rules for standards. Read artifacts/product-research/<run-id>__spec.md. Output artifacts/architect/<run-id>__architecture.md. Respond in Chinese."
+  context="Load skill: se-team-design. Load se-team-rules for standards. Output artifacts/design/<run-id>__architecture.md. Respond in Chinese."
 )
 ```
 
-子 agent 调用 `skill_view('se-team-architect')`,获得其角色、方法论、模板和禁令——全部自包含。规则通过 `skill_view('se-team-rules')` 加载。
+子 agent 调用 `skill_view('se-team-design')`,获得其角色、方法论、模板和禁令——全部自包含。规则通过 `skill_view('se-team-rules')` 加载。
 
 ---
 
