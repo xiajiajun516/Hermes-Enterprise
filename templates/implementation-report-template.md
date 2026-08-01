@@ -1,14 +1,10 @@
-# Implementation Report — <run-id>
+# Implementation Report — <run>
 
 ## Run Identity
-- **run_id**: <run-id>
-- **agent_slug**: engineer
-- **stage**: <2d>
-- **contract**: artifacts/runs/<run-id>__contract.md
+- **run**: <stage-slug>
+- **stage**: engineer
+- **input commit**: <git ref>
 - **created_at_utc**: <ISO-8601>
-
-## Source Artifacts
-- **inputs**: <paths matching contract inputs[]>
 
 ## What Changed
 - **Files / Components**: <exact paths touched>

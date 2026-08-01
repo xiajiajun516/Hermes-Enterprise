@@ -1,23 +1,23 @@
 # 🚀 Hermes Enterprise
 
-[English](./README.md) | [中文](./README.zh-CN.md)
+为 **Hermes Agent** 打造的轻量、git 原生、三阶段 AI 软件工程团队 **Master Skill** —— 日常工具版 (v2.0)。
 
-面向 **Hermes Agent** 的企业级、工件驱动、自进化的 AI 软件工程团队 **Master Skill**。
+[English Version](./README.md)
 
 ---
 
-## ⚡ 快速安装 Skill
+## ⚡ 快速安装
 
-你可以在所有 Hermes 会话中使用以下任一方法安装并使用此 skill:
+在任何 Hermes 会话中使用此 skill：
 
-### 方法 1:克隆到 Hermes 全局 Skills 目录(推荐)
+### 方式 1:Git Clone 到 Hermes 全局 Skills 目录(推荐)
 
 **Linux / macOS / Git Bash:**
 ```bash
-# 主编排 skill
+# 主调度 skill
 git clone https://github.com/xiajiajun516/Hermes-Enterprise.git ~/.config/hermes/skills/software-engineering-team
 
-# 安装子 agent skills(优化分发)
+# 安装子角色 skills
 cp -r ~/.config/hermes/skills/software-engineering-team/skills/* ~/.config/hermes/skills/
 ```
 
@@ -28,47 +28,32 @@ git clone https://github.com/xiajiajun516/Hermes-Enterprise.git %USERPROFILE%\Ap
 xcopy /E /I %USERPROFILE%\AppData\Local\hermes\skills\software-engineering-team\skills\* %USERPROFILE%\AppData\Local\hermes\skills\
 ```
 
-克隆完成后,Hermes 会在 **所有** 会话和 profile 中全局自动索引这些 skills!
+克隆后 Hermes 会自动在**所有**会话与 Profile 中全局索引这些 skills！
 
 ---
 
-### 方法 2:通过 CLI 标志预加载
-使用 `-s` 标志从本地克隆或 URL 预加载 skill:
+### 方式 2:CLI 预加载
 ```bash
 hermes -s software-engineering-team
 ```
 
 ---
 
-### 方法 3:在对话中调用
-安装后,在任何活动的 Hermes 对话中直接调用该 skill:
-
-> *"加载 skill software-engineering-team,并为这个仓库构建一个用户认证服务。"*
+### 方式 3:会话内调用
+> *"Load skill software-engineering-team and build a user authentication service for this repository."*
 
 ---
 
 ## 🌟 核心亮点
 
-- **Master 编排入口**:`SKILL.md` 是 agent 的可执行逐步编排指南。
-- **基于 Skill 的分发**(v1.1 优化):子 agents 通过 `skill_view()` 自行加载角色、方法论、模板和规则——无需手动注入冗长的提示词文件。Master Agent 只需指定 skill 名称 + 任务上下文。
-- **零配置**:直接继承当前会话的 LLM 提供商、API 密钥和工具链。
-- **工件驱动协作**:通过生成持久的 Markdown/代码工件(`spec.md`、`architecture.md`、`compliance-report.md` 等)消除对聊天历史的依赖。
-- **最小上下文策略**:严格限制子 agent 上下文为必要工件,减少 token 消耗。
-- **自动化验证门禁**:将 Python 脚本(`validate_artifact.py`、`update_kanban.py --check`)集成到执行管线中,实施 schema 强制。
-- **合规门禁与自纠错循环**:在编码开始前自动依据设计/技术标准审计规格。
-- **自进化治理**:`Rule Manager Agent` 根据事后复盘和用户指令更新规则及 Scope Recall 记忆(`project` / `ops` 目标范围)。
-- **审批门禁**:高风险操作(删除、数据库迁移、部署)需要通过 Hermes `clarify` 进行人工确认。
-
----
-
-## 🧠 记忆与插件集成
-
-### Scope Recall 集成(推荐)
-与 `scope-recall-hermes` 插件配合时,此 skill 会自动存储和检索域隔离记忆:
-- **`target="project"`**:存储仓库架构约定、模块映射和实体规则。
-- **`target="ops"`**:存储 CI/CD 参数、服务器 IP 和部署策略。
-- **`target="user"`**:存储个人/团队代码风格偏好。
-- **`target="memory"`**:存储通用技术陷阱和事后复盘经验。
+- **三阶段流水线**:`design → engineer → QA`。主控(Workflow Manager)只做策略与调度——不写业务代码、SQL 或文件,所有执行由子代理完成。
+- **Git 原生信任**:不可变性、谱系、状态追踪全部交给 git——子代理自行提交(提交信息带 stage 标记),`git log` 即谱系。无手写 manifest/SHA 体系。
+- **零配置**:直接继承当前会话的 LLM Provider、API Key 与工具链。
+- **Skill 分发**:子代理通过 `skill_view()` 自加载角色,无需手动注入上下文。
+- **软门禁 QA**:OCR 机械审查(参考信号)+ 人工审查,结论 `APPROVED / CHANGES_REQUESTED / REJECTED`;主控决定打回或放行,用户最终验收兜底。
+- **打回闭环**:QA 发现的问题回到对应阶段(实现错误→engineer,需求/设计错误→design),携带 QA 报告作为输入;多次失败后升级给用户。
+- **规则自演进**:QA 报告可附规则建议,主控直接 patch `se-team-rules`(治理属策略职责,非业务代码)。
+- **轻量**:4 个角色 skill + 3 个模板 + 1 个同步脚本,其余在 v2.0 中全部精简。
 
 ---
 
@@ -76,72 +61,71 @@ hermes -s software-engineering-team
 
 ```text
 Hermes-Enterprise/
-├── SKILL.md                # Master 编排入口
-├── PLAN.md                 # 架构与计划概览(英文)
-├── README.md               # 概览与 Skill 安装指南(英文,默认)
-├── README.zh-CN.md         # 概览与 Skill 安装指南(简体中文)
+├── SKILL.md                # 主控调度入口
+├── README.md               # 概览与安装指南
 ├── LICENSE                 # MIT License
-├── skills/                 # 独立子 Agent Skills (v1.1)
+├── skills/                 # 子角色 Skills
 │   ├── se-team-design/SKILL.md
 │   ├── se-team-engineer/SKILL.md
-│   ├── se-team-compliance-reviewer/SKILL.md
 │   ├── se-team-qa-release/SKILL.md
-│   ├── se-team-rule-manager/SKILL.md
 │   └── se-team-rules/SKILL.md
-├── templates/              # 标准交付工件模板
-├── artifacts/              # 标准输出工件位置
-├── kanban/                 # 任务管线看板跟踪(`kanban.md`)
-└── scripts/                # 验证与辅助脚本
+├── templates/              # 交付物模板(spec / report / review)
+└── scripts/
+    └── sync_skills.py      # 镜像仓库 skills 到 Hermes skills 目录
 ```
 
 ---
 
-## 🤖 Agent 矩阵 (v1.1 — 基于 Skill)
+## 🤖 Agent 矩阵 (v2.0)
 
 | Agent | 角色 | Hermes Skill | 主要交付物 |
 | :--- | :--- | :--- | :--- |
-| **01. Workflow Manager** | 控制与管线管理 | `software-engineering-team` (Master) | 合同与 manifest |
-| **02. Design Agent** | 需求、可行性与架构 | `se-team-design` | `research`、`spec-draft`、`spec`、`architecture`、`implementation-plan` |
-| **03. Engineer Agent** | 代码与单元测试实现 | `se-team-engineer` | `implementation-report` |
-| **04. Compliance Reviewer**| 静态门禁审计 | `se-team-compliance-reviewer` | `compliance-report` |
-| **05. QA & Release** | 审查、测试与发布 | `se-team-qa-release` | `review`、`test-report`、`release` |
-| **06. Rule Manager** | 治理与演进 | `se-team-rule-manager` | `governance-report` |
+| **Workflow Manager** | 仅策略与调度 | `software-engineering-team` (Master) | 4 字段运行约定 |
+| **Design Agent** | 需求 + 架构 | `se-team-design` | 单个 `spec.md` |
+| **Engineer Agent** | TDD 代码与单元测试 | `se-team-engineer` | 代码 + `implementation-report` |
+| **QA & Release** | OCR 门禁 + 审查 | `se-team-qa-release` | `review.md`(结论) |
 | — | 共享项目规则 | `se-team-rules` | 所有 agents 加载 |
 
-### 分发如何工作(优化版)
+### 分发如何工作 (v2.0)
 
-**之前 (v1.0):** Master Agent 手动读取 3-6 个文件,拼接成一个巨大的上下文字符串。
+主控以 **4 字段约定** 派发——无 contract 文件、无脚本校验;git ref 即校验:
 
-**之后 (v1.1):** Master Agent 告诉子 agent 要加载哪个 skill:
 ```
 delegate_task(
   goal="Design system architecture for user auth service",
-  context="Load skill: se-team-design. Load se-team-rules for standards. Output artifacts/design/<run-id>__architecture.md. Respond in Chinese."
+  context="run: design-auth-flow. stage: design. "
+          "output: docs/design/design-auth-flow-spec.md. "
+          "rule: never overwrite other stages' output, never rewrite git history. "
+          "Load skill: se-team-design. Load se-team-rules. Commit your deliverable yourself. Respond in Chinese."
 )
 ```
 
-子 agent 调用 `skill_view('se-team-design')`,获得其角色、方法论、模板和禁令——全部自包含。规则通过 `skill_view('se-team-rules')` 加载。
+子代理调用 `skill_view('se-team-design')` 获得角色与模板,基于当前 git HEAD 工作,自行提交。`git log` 成为可读谱系。
 
 ---
 
 ## 🔄 自纠错循环
 
 ```text
-[Product / Architect Agent] ──► Generates Spec / Architecture
-                                         │
-                                         ▼
-[Compliance Reviewer] ─────────► Audits against se-team-rules
-                                         │
-                   ┌─────────────────────┴─────────────────────┐
-                   ▼                                           ▼
-             STATUS: FAIL                                STATUS: PASS
-                   │                                           │
-                   ▼                                           ▼
-[Return to Product/Architect for revision]       [Proceed to Implementation]
+[Design Agent] ──► spec.md 提交
+        │
+        ▼
+[Engineer Agent] ──► 代码 + report 提交 (TDD)
+        │
+        ▼
+[QA & Release] ──► OCR 审查(参考)+ 人工审查 → 结论
+        │
+   ┌────┴────┐
+   ▼         ▼
+CHANGES_REQUESTED      APPROVED
+   │                   │
+   ▼                   ▼
+回到对应阶段           用户最终验收
+(engineer/design)
 ```
 
 ---
 
-## 📄 许可证
+## 📄 License
 
-基于 MIT License 分发。详见 `LICENSE`。
+MIT License。详见 `LICENSE`。

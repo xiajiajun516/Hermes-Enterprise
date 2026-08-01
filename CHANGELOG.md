@@ -1,5 +1,31 @@
 # Changelog
 
+## 2.0.0
+- **Daily-driver rewrite**: the framework is now a lightweight, git-native,
+  3-stage pipeline (`design → engineer → QA`). Breaking change — v1.x
+  Contract/manifest architecture is removed entirely.
+- **Deleted**: all manifest/SHA machinery (`artifact_io`, `artifact_naming`,
+  `close_run`, `manifest_lineage`, `task_contract`, `validate_artifact`,
+  `update_kanban`, `self_health_check`), `kanban/`, the
+  `se-team-compliance-reviewer` and `se-team-rule-manager` roles, 8 of 11
+  templates, and 7 of 8 test modules (only `test_sync_skills.py` remains).
+- **Trust = git**: subagents self-commit with stage-tagged messages; `git log`
+  is the lineage; a git ref is the input validation. No contract files.
+- **Dispatch convention**: 4 fields (`run`, `stage`, `output`, `rule`) in the
+  delegate context instead of an 8-section contract.
+- **Soft QA gate**: OCR mechanical review (advisory) + manual review with
+  `APPROVED / CHANGES_REQUESTED / REJECTED`; the Master decides rework vs.
+  pass; user final acceptance is the backstop.
+- **Rework loop**: QA findings return to the responsible stage (engineer for
+  implementation, design for requirements) with the QA report as input;
+  escalation to the user after repeated failures (default 2).
+- **Rule evolution**: QA reports may suggest rule updates; the Master patches
+  `se-team-rules` directly (governance is strategy duty, not business code).
+- **Design output**: single `spec.md` (requirements + architecture +
+  implementation plan) replaces the 5-artifact design set.
+- **Kept**: `sync_skills.py`, `se-team-rules`, role skills (rewritten),
+  3 templates (rewritten), `test_sync_skills.py`.
+
 ## 1.7.0
 - **Merge Product & Research (2a) + Architect (2b) into a single Design Agent**
   (`se-team-design`, stage `2a`, slug `design`): one role now produces

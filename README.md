@@ -1,6 +1,6 @@
 # 🚀 Hermes Enterprise
 
-An enterprise-grade, artifact-driven, self-evolving AI software engineering team **Master Skill** for **Hermes Agent**.
+A lightweight, git-native, 3-stage AI software engineering team **Master Skill** for **Hermes Agent** — daily-driver edition (v2.0).
 
 [中文版 (Chinese Version)](./README.zh-CN.md)
 
@@ -8,7 +8,7 @@ An enterprise-grade, artifact-driven, self-evolving AI software engineering team
 
 ## ⚡ Quick Skill Installation
 
-You can install and use this skill across all your Hermes sessions using any of the following methods:
+Install and use this skill across all your Hermes sessions:
 
 ### Method 1: Git Clone into Hermes Global Skills Directory (Recommended)
 
@@ -17,7 +17,7 @@ You can install and use this skill across all your Hermes sessions using any of 
 # Main orchestrator skill
 git clone https://github.com/xiajiajun516/Hermes-Enterprise.git ~/.config/hermes/skills/software-engineering-team
 
-# Install sub-agent skills (optimized dispatch)
+# Install sub-agent skills
 cp -r ~/.config/hermes/skills/software-engineering-team/skills/* ~/.config/hermes/skills/
 ```
 
@@ -33,7 +33,6 @@ Once cloned, Hermes automatically indexes all skills globally across **all** you
 ---
 
 ### Method 2: Preload via CLI Flag
-Run Hermes with the `-s` flag to preload the skill directly from a local clone or URL:
 ```bash
 hermes -s software-engineering-team
 ```
@@ -41,34 +40,20 @@ hermes -s software-engineering-team
 ---
 
 ### Method 3: In-Chat Invocation
-Once installed, simply invoke the skill in any active Hermes conversation:
-
 > *"Load skill software-engineering-team and build a user authentication service for this repository."*
 
 ---
 
 ## 🌟 Core Highlights
 
-- **Master Orchestrator Entry Point**: `SKILL.md` acts as an executable step-by-step orchestrator guide for the agent.
-- **Skill-Based Dispatch** (v1.1 optimized): Subagents self-load their role, methodology, templates, and rules via `skill_view()` — no more manual context injection of verbose prompt files. Master Agent only needs to specify the skill name + task context.
+- **3-Stage Pipeline**: `design → engineer → QA`. The Master (Workflow Manager) only does strategy and dispatch — it never writes business code, SQL, or files itself; all execution is done by subagents.
+- **Git-Native Trust**: Immutability, lineage, and state tracking are handled entirely by git — subagents self-commit with stage-tagged messages, so `git log` *is* the lineage. No hand-written manifest/SHA machinery.
 - **Zero Configuration**: Inherits your active session's LLM provider, API keys, and toolchain directly.
-- **Artifact-Driven Collaboration**: Eliminates dependency on chat history by producing durable Markdown/Code artifacts (`spec.md`, `architecture.md`, `compliance-report.md`, etc.).
-- **Minimal Context Policy**: Strictly limits subagent contexts to essential artifacts, reducing token consumption.
-- **Automated Validation Gates**: Integrates Python scripts (`validate_artifact.py`, `update_kanban.py --check`) into execution pipelines for schema enforcement.
-- **Compliance Gate & Self-Correction Loop**: Automatically audits specifications against design/tech standards before coding begins.
-- **Self-Evolving Governance**: Features a `Rule Manager Agent` that updates rules and Scope Recall memory (`project` / `ops` target scopes) based on post-mortems and user directives.
-- **Approval Gates**: High-risk operations (deletions, DB migrations, deployments) require human confirmation via Hermes `clarify`.
-
----
-
-## 🧠 Memory & Plugin Integration
-
-### Scope Recall Integration (Recommended)
-When paired with the `scope-recall-hermes` plugin, this skill automatically stores and retrieves domain-isolated memories:
-- **`target="project"`**: Stores repository architecture conventions, module maps, and entity rules.
-- **`target="ops"`**: Stores CI/CD parameters, server IPs, and deployment strategies.
-- **`target="user"`**: Stores personal/team code style preferences.
-- **`target="memory"`**: Stores general technical pitfalls and post-mortem lessons.
+- **Skill-Based Dispatch**: Subagents self-load their role via `skill_view()` — no manual context injection.
+- **Soft QA Gate**: OCR mechanical review (advisory) + manual review with `APPROVED / CHANGES_REQUESTED / REJECTED` verdict; the Master decides rework vs. pass, and the user's final acceptance is the backstop.
+- **Rework Loop**: QA findings return to the responsible stage (engineer for implementation, design for requirements) with the QA report as input; escalates to the user after repeated failures.
+- **Self-Evolving Rules**: QA reports may suggest rule updates; the Master patches `se-team-rules` directly (governance is strategy, not business code).
+- **Lightweight**: 4 role skills + 3 templates + 1 sync script. Everything else was cut in v2.0.
 
 ---
 
@@ -77,66 +62,66 @@ When paired with the `scope-recall-hermes` plugin, this skill automatically stor
 ```text
 Hermes-Enterprise/
 ├── SKILL.md                # Master Orchestrator Entry Point
-├── PLAN.md                 # Architecture & Plan Overview (English)
 ├── README.md               # Overview & Skill Installation Guide
 ├── LICENSE                 # MIT License
-├── skills/                 # Standalone Sub-Agent Skills (v1.1)
+├── skills/                 # Sub-Agent Skills
 │   ├── se-team-design/SKILL.md
 │   ├── se-team-engineer/SKILL.md
-│   ├── se-team-compliance-reviewer/SKILL.md
 │   ├── se-team-qa-release/SKILL.md
-│   ├── se-team-rule-manager/SKILL.md
 │   └── se-team-rules/SKILL.md
-├── templates/              # Standard Deliverable Artifact Templates
-├── artifacts/              # Standard Output Artifacts Location
-├── kanban/                 # Task Pipeline Kanban Tracking (`kanban.md`)
-└── scripts/                # Validation & Helper Scripts
+├── templates/              # Deliverable Templates (spec / report / review)
+└── scripts/
+    └── sync_skills.py      # Mirror repo skills into the Hermes skills dir
 ```
 
 ---
 
-## 🤖 Agent Matrix (v1.1 — Skill-Based)
+## 🤖 Agent Matrix (v2.0)
 
 | Agent | Role | Hermes Skill | Main Deliverable |
 | :--- | :--- | :--- | :--- |
-| **01. Workflow Manager** | Controller & Pipeline Manager | `software-engineering-team` (Master) | Contracts & manifests |
-| **02. Design Agent** | Requirements, Feasibility & Architecture | `se-team-design` | `research`, `spec-draft`, `spec`, `architecture`, `implementation-plan` |
-| **03. Engineer Agent** | Code & Unit Test Implementation | `se-team-engineer` | `implementation-report` |
-| **04. Compliance Reviewer**| Static Gatekeeper Audit | `se-team-compliance-reviewer` | `compliance-report` |
-| **05. QA & Release** | Review, Testing & Deployment | `se-team-qa-release` | `review`, `test-report`, `release` |
-| **06. Rule Manager** | Governance & Evolution | `se-team-rule-manager` | `governance-report` |
+| **Workflow Manager** | Strategy & Dispatch only | `software-engineering-team` (Master) | 4-field run convention |
+| **Design Agent** | Requirements + Architecture | `se-team-design` | single `spec.md` |
+| **Engineer Agent** | TDD Code & Unit Tests | `se-team-engineer` | code + `implementation-report` |
+| **QA & Release** | OCR gate + Review | `se-team-qa-release` | `review.md` (verdict) |
 | — | Shared Project Rules | `se-team-rules` | Loaded by all agents |
 
-### How Dispatch Works (Optimized)
+### How Dispatch Works (v2.0)
 
-**Before (v1.0):** Master Agent manually reads 3-6 files, concatenates them into a giant context string.
+The Master dispatches with a **4-field convention** — no contract file, no script validation; a git ref is the validation:
 
-**After (v1.1):** Master Agent tells the subagent which skill to load:
 ```
 delegate_task(
   goal="Design system architecture for user auth service",
-  context="Load skill: se-team-design. Load se-team-rules for standards. Output artifacts/design/<run-id>__architecture.md. Respond in Chinese."
+  context="run: design-auth-flow. stage: design. "
+          "output: docs/design/design-auth-flow-spec.md. "
+          "rule: never overwrite other stages' output, never rewrite git history. "
+          "Load skill: se-team-design. Load se-team-rules. Commit your deliverable yourself. Respond in Chinese."
 )
 ```
 
-The subagent calls `skill_view('se-team-design')` and gets its role, methodology, templates, and prohibitions — all self-contained. Rules are loaded via `skill_view('se-team-rules')`.
+The subagent calls `skill_view('se-team-design')`, gets its role and template, works from the current git HEAD, and self-commits. `git log` becomes the readable lineage.
 
 ---
 
 ## 🔄 Self-Correction Loop
 
 ```text
-[Product / Architect Agent] ──► Generates Spec / Architecture
-                                         │
-                                         ▼
-[Compliance Reviewer] ─────────► Audits against se-team-rules
-                                         │
-                   ┌─────────────────────┴─────────────────────┐
-                   ▼                                           ▼
-             STATUS: FAIL                                STATUS: PASS
-                   │                                           │
-                   ▼                                           ▼
-[Return to Product/Architect for revision]       [Proceed to Implementation]
+[Design Agent] ──► spec.md commit
+        │
+        ▼
+[Engineer Agent] ──► code + report commit (TDD)
+        │
+        ▼
+[QA & Release] ──► OCR review (advisory) + manual review → verdict
+        │
+   ┌────┴────┐
+   ▼         ▼
+CHANGES_REQUESTED      APPROVED
+   │                   │
+   ▼                   ▼
+back to responsible    user final acceptance
+stage (engineer/design)
 ```
 
 ---

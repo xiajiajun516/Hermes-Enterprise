@@ -1,112 +1,70 @@
 ---
 name: software-engineering-team
-version: 1.7.0
-description: "Forward-only Contract-driven Software Engineering AI Team orchestration."
+version: 2.0.0
+description: "Lightweight 3-stage engineering team orchestration (design→engineer→QA)."
 category: software-development
 ---
-# Software Engineering AI Team — Master
+# Software Engineering AI Team — Master (v2.0)
 
-## Dispatch Prerequisites
+Daily-driver edition: a three-stage pipeline (design → engineer → QA). Immutability, lineage, and state tracking are handled entirely by git — no hand-written manifest/SHA machinery. The Master (this agent) only does strategy and dispatch; it never writes business code, SQL, or files itself — all execution is done by Subagents.
 
-Every future pipeline dispatch must first create
-`artifacts/runs/<run-id>__contract.md` with create-new / exclusive-write semantics. The Master
-may pass only the Contract's exact path and SHA-256, exact `inputs[]` paths and SHA-256 values,
-and declared create-new outputs to a Subagent.
+## Roles
 
-Never select inputs using `latest`, globbing, directory traversal, mtime, filename guessing, or
-root-level `artifacts/*.md` legacy files. Future outputs must be Git-tracked, immutable agent
-artifacts linked by a Git-tracked manifest. Root-level legacy files are neither migrated nor
-runtime inputs.
+| Stage | Skill | Deliverable |
+|---|---|---|
+| design | `se-team-design` | single `spec.md` (requirements + architecture + implementation plan) |
+| engineer | `se-team-engineer` | implementation code + `report.md` |
+| qa | `se-team-qa-release` | `review.md` (OCR gate + verdict) |
 
-Every dynamic Task Contract must begin with an environment gate: explicitly `cd` to the repository,
-assert `pwd`, and verify that every exact input and required script exists. If the gate fails,
-report `BLOCKED` and write no paths.
+Every agent also loads `se-team-rules` for project standards.
 
-## Complete Dynamic Task Contract Required for Every Subagent
+## Dispatch Convention (4 fields)
 
-Copy the following body into `delegate_task` context and replace every `<...>` placeholder with an
-actual value; no placeholder may remain after substitution. Front-matter `inputs` / `outputs` may
-contain only exact paths and must never rely on inference.
+Every `delegate_task` context carries these fields — no contract file, no script validation; **a git ref is the validation**:
 
-```markdown
----
-contract_version: "1.0"
-run_id: "<YYYYMMDDTHHmmss-SSS>"
-created_at_utc: "<YYYY-MM-DDTHH:mm:ss.SSSZ>"
-tier: "<P0|P1|P2>"
-stage: "<2a|2b|2c|2d|2e|2f>"
-attempt: <positive-integer>
-agent_display_name: "<display-name>"
-agent_slug: "<design|compliance-reviewer|engineer|qa-release|rule-manager>"
-parent_run_id: <null-or-YYYYMMDDTHHmmss-SSS>
-language: "en-US"
-inputs:
-  - path: "artifacts/<producer-slug>/<producer-run-id>__<artifact-name>.md"
-    artifact_name: "<artifact-name>"
-    sha256: "<64-lowercase-hex>"
-    producer_run_id: "<producer-run-id>"
-outputs:
-  - agent_slug: "<agent-slug>"
-    artifact_name: "<artifact-name>"
-    target_path: "artifacts/<agent-slug>/<run-id>__<artifact-name>.md"
-    template: "<exact-template-path>"
-    write_mode: "create-new"
----
-
-## Run Identity
-run_id: <same-as-frontmatter>
-created_at_utc: <same-as-frontmatter>
-
-## Goal & Scope
-goal: <specific-deliverable>
-scope: <authorized-work-boundary>
-
-## Source of Truth
-source: <each-authoritative-input-path-and-SHA-256>
-
-## Environment SOP
-command: cd <repo-root> && test "$(pwd)" = "<repo-root>" && <prerequisite-checks>
-
-## Artifact I/O Contract
-inputs: <only-frontmatter-inputs; validate path, Git tracking and recomputed SHA before read>
-outputs: <only-frontmatter-outputs; create-new, UTC naming, exclusive write and Git tracking>
-
-## Checksum / Verification
-sha256: <recalculate-every-input-and-output-SHA-256>
-verification: <exact-commands, expected-exit-codes, and validation criteria>
-
-## Hard Prohibitions
-prohibited: legacy inputs, latest, glob, mtime, traversal, guessed inputs, overwrite, undeclared writes, and Git mutations unless explicitly authorized
-
-## Final Report Protocol
-report: English; include the Contract run_id, exact input/output paths, SHA-256 values, actual commands and exit codes, verification results, BLOCKED state, risks, and omitted work
-handoff: from the start, maintain artifacts/handoffs/<run-id>__handoff.md (fields: run_id, stage, done, remaining, next_steps with exact commands/paths). Refresh it before every deliverable write and before every verification run. When you estimate ~10 tool calls remain, stop and write/refresh the handoff immediately — never let the budget expire without one. The handoff is scratch (gitignored), not a tracked deliverable.
+```text
+run:    <stage>-<short-slug>          # e.g. design-auth-flow
+stage:  design | engineer | qa
+output: <deliverable path per role table>
+rule:   Never overwrite another stage's output; never rewrite git history; obey se-team-rules
 ```
 
-Before dispatching, the Master must validate the Contract with
-`python scripts/validate_artifact.py <exact-contract-path>` and accept only tracked manifest lineage.
+- **Input = git ref**: the subtask works from the current branch HEAD (or an explicitly named commit).
+- **Commit = the subagent commits itself**: `git add` + `git commit -m "<type>(<stage>): <desc>"` — the stage tag in the message makes `git log` the lineage.
+- Upstream output is the next stage's input: QA consumes the engineer's commit.
 
-Before reading any input, the Master (or the Subagent) must authorize it with
-`python scripts/validate_artifact.py --authorize <exact-contract-path> <input-path>`;
-only authorized inputs may be read.
+## Pipeline
 
-## Retry & Recovery
+### 1. design
+Dispatch `se-team-design`: analyze the goal, produce one `spec.md` (requirements + architecture + implementation plan), commit it.
 
-A failed or blocked run is closed as-is (`blocked`/`failed` status accepts zero
-outputs — an aborted run leaves no artifacts). The kanban Blocked column is a
-manual review queue: inspect the manifest, then either retry or abandon.
+### 2. engineer
+Dispatch `se-team-engineer`: TDD implementation (RED→GREEN→REFACTOR), produce code + `report.md`, commit it.
 
-To retry, open a new Contract with the same stage, `attempt` incremented, and
-`parent_run_id` set to the failed run; its inputs may consume the failed run's
-outputs or the original upstream artifacts. A retry subagent must first read
-`artifacts/handoffs/<failed-run-id>__handoff.md` (if present) and resume from it.
-Forward-only artifacts are immutable:
-a wrong record is superseded by a new run, never rewritten.
+### 3. QA (soft gate)
+Dispatch `se-team-qa-release`:
+1. Run OCR review (`ocr review --audience agent`, or delegate mode) — advisory signal.
+2. Manual agent review → `review.md` with verdict: `APPROVED` / `CHANGES_REQUESTED` / `REJECTED`.
 
-| Stage | slug | standard outputs |
-|---|---|---|
-|2a|design|research, spec-draft, spec, architecture, implementation-plan|
-|2c|compliance-reviewer|compliance-report|
-|2d|engineer|implementation-report|
-|2e|qa-release|review, test-report, release|
-|2f|rule-manager|governance-report|
+## Rework Loop
+
+QA findings → Master decides:
+- **Implementation error** → back to engineer: new run, input = current HEAD (QA report included), fix and self-commit.
+- **Requirement/design error** → back to design, same pattern.
+- After N failed reworks (default 2), escalate to the user for clarification — never loop indefinitely.
+
+Soft gate: the Master may let a marginal review pass (the user's final acceptance is the backstop).
+
+## Rule Evolution (self-update)
+
+QA reports may append a one-line rule suggestion (e.g. "third NPE of the same kind — suggest adding a rule to se-team-rules"). The Master decides and directly patches `skills/se-team-rules/SKILL.md` + commits it (governance is the Master's strategy duty, not business code). Afterwards re-run `python scripts/sync_skills.py` to refresh the installed Hermes copy.
+
+## Hard Prohibitions
+
+- The Master never writes business code / SQL / files — dispatch, decide, and patch rule files only.
+- Never rewrite git history (forward-only: a wrong record is corrected by a new commit).
+- Never overwrite another stage's output file.
+
+## Tooling
+
+- `scripts/sync_skills.py` — mirror repo skills into the Hermes skills dir (`--check` detects drift).

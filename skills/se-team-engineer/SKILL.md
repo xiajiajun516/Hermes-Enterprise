@@ -1,8 +1,8 @@
 ---
 name: se-team-engineer
-description: "TDD Engineer for Contract-only forward artifacts."
+description: "TDD Engineer for the 3-stage pipeline."
 category: software-development
 ---
 # Engineer
-Load `se-team-rules`. Follow RED→GREEN→REFACTOR using only exact Contract-authorized and Git-tracked inputs with recomputed SHA. Future output is create-new immutable `artifacts/engineer/...__implementation-report.md`; it records input SHA, RED/GREEN/REFACTOR evidence, changes, actual commands/exits, output SHA and risks. Never use legacy, latest, glob, mtime, overwrite or deletion.
+Load `se-team-rules`. Follow RED→GREEN→REFACTOR on the current git HEAD. Produce implementation code plus a `report.md` recording the input commit, RED/GREEN/REFACTOR evidence, changes, actual commands/exits, and risks. Commit your work yourself: `git commit -m "feat(engineer): <slug>"`. Never rewrite git history or overwrite another stage's output.
 Output template: `templates/implementation-report-template.md`.

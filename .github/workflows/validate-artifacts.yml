@@ -1,4 +1,4 @@
-name: Validate Forward Artifacts
+name: Validate
 on: [push, pull_request]
 jobs:
   validate:
@@ -8,63 +8,12 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
       - name: Install tooling
-        run: pip install ruff coverage
-      - name: Unit and fixture checks
-        run: python -m unittest discover -s tests -p 'test_*.py'
+        run: pip install ruff coverage pytest
+      - name: Unit tests
+        run: python -m pytest tests/ -q
       - name: Style gate
         run: ruff check scripts tests
       - name: Coverage gate
         run: |
-          coverage run -m unittest discover -s tests -p 'test_*.py'
+          coverage run -m pytest tests/ -q
           coverage report
-      - name: Health check asserts the correct state for tracked lineage
-        run: |
-          set -euo pipefail
-          if git ls-files -- 'artifacts/runs/*__manifest.json' | grep -q .; then
-            # Post-bootstrap: a valid tracked lineage must PASS (exit 0).
-            # A corrupted manifest exits 1 and fails the step.
-            python scripts/self_health_check.py
-          else
-            # Bootstrap: no tracked manifests yet — must report BOOTSTRAP_PENDING (exit 1).
-            set +e
-            python scripts/self_health_check.py
-            code=$?
-            set -e
-            if [ "$code" -ne 1 ]; then
-              echo "BOOTSTRAP state violated: expected exit 1 (BOOTSTRAP_PENDING), got $code"
-              exit 1
-            fi
-          fi
-  sync-kanban:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    concurrency:
-      group: kanban-sync
-      cancel-in-progress: true
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: "3.11"}
-      - name: Regenerate derived kanban
-        run: python scripts/update_kanban.py
-      - name: Commit regenerated board if changed
-        run: |
-          if ! git diff --quiet kanban/kanban.md; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add kanban/kanban.md
-            git commit -m "chore(kanban): sync derived board with lineage [skip ci]"
-            git pull --rebase
-            git push
-          fi
-  check-kanban:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: "3.11"}
-      - name: Kanban drift check
-        run: python scripts/update_kanban.py --check

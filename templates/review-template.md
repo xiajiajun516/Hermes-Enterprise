@@ -1,38 +1,34 @@
-# Review — <run-id>
+# Review — <run>
 
 ## Run Identity
-- **run_id**: <run-id>
-- **agent_slug**: qa-release
-- **stage**: <2e>
-- **contract**: artifacts/runs/<run-id>__contract.md
+- **run**: <stage-slug>
+- **stage**: qa
+- **input commit**: <git ref>
 - **created_at_utc**: <ISO-8601>
 
-## Source Artifacts
-- **inputs**: <paths matching contract inputs[]>
-
-## Review Metadata
-- **Reviewer**: <agent slug>
-- **Target Artifact**: <path of the reviewed artifact>
-- **Review Date**: <ISO date>
+## OCR Mechanical Review (optional, advisory)
+- **Command**: <ocr review ... / ocr delegate preview>
+- **High findings**: <count + top items>
+- **Medium findings**: <count + top items>
 
 ## 1. Code Quality Check
 | Check | Status | Notes |
 |:---|:---:|:---|
-| Coding Standards | ✅/❌ | <evidence> |
+| Coding Standards (se-team-rules) | ✅/❌ | <evidence> |
 | Code Duplication | ✅/❌ | <evidence> |
 | Documentation | ✅/❌ | <evidence> |
 
-## 2. Security Audit (mandatory)
+## 2. Security Audit
 - **Vulnerabilities Found**: <none, or list>
 - **Severity**: <critical / major / minor per finding>
-- **Recommendations**: <required fixes>
 
-## 3. Diff Assessment
-- **Files Changed**: <exact paths>
-- **Lines Added/Removed**: <numbers>
-- **Risk Level**: Low / Medium / High <justification>
+## 3. Findings
+| # | Severity | Path:Line | Issue | Suggestion |
+|:---|:---|:---|:---|:---|
+| 1 | high | <path>:<line> | <issue> | <suggestion> |
 
-> The verdict below must follow from the diff assessment and security audit.
+## 4. Rule Suggestion (optional)
+- <one-line suggestion for the Master, if the same mistake recurred across runs>
 
 ---
 **Review Verdict**: `APPROVED` / `CHANGES_REQUESTED` / `REJECTED`

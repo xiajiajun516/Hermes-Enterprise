@@ -18,7 +18,7 @@ def make_repo():
     subprocess.run(["git", "init", "-q", str(root)], check=True)
     (root / "SKILL.md").write_text("# Master\n", encoding="utf-8")
     (root / "scripts").mkdir(exist_ok=True)
-    (root / "scripts/validate_artifact.py").write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+    (root / "scripts/sync_skills.py").write_text("#!/usr/bin/env python3\n", encoding="utf-8")
     (root / "skills").mkdir(exist_ok=True)
     for name in ("se-team-engineer", "se-team-design", "se-team-rules"):
         skill_dir = root / "skills" / name
@@ -36,7 +36,7 @@ class SyncSkillsTests(unittest.TestCase):
                 target = Path(target_dir)
                 copy_all(repo, target)
                 self.assertTrue((target / "software-engineering-team/SKILL.md").is_file())
-                self.assertTrue((target / "software-engineering-team/scripts/validate_artifact.py").is_file())
+                self.assertTrue((target / "software-engineering-team/scripts/sync_skills.py").is_file())
                 self.assertTrue((target / "se-team-engineer/SKILL.md").is_file())
                 self.assertTrue((target / "se-team-design/SKILL.md").is_file())
                 self.assertFalse((target / "se-team-rules/SKILL.md").exists())
