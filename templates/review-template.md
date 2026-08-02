@@ -6,10 +6,10 @@
 - **input commit**: <git ref>
 - **created_at_utc**: <ISO-8601>
 
-## Semgrep Findings (deterministic, zero-token)
+## Semgrep Findings (pattern-based signals, advisory)
 - **Command**: <git diff --name-only HEAD~1..HEAD …; semgrep scan --config auto --json>
 - **Scope**: <changed files only; note if full-repo fallback was used>
-- **Findings**: <count by severity; fold into section 3 directly — deterministic signals, no LLM confirmation needed>
+- **Findings**: <count by severity; fold into section 3 — confirm before they affect a verdict (registry rule set may drift)>
 
 ## OCR Mechanical Review (optional, advisory)
 - **Command**: <ocr review ... / ocr delegate preview>

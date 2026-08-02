@@ -30,7 +30,7 @@ Implement the design at current git HEAD following TDD. Produce implementation c
 - If the project has linting or type checks, run them and record results.
 
 ## Commit
-- Commit your work yourself, one commit per coherent unit:
+- Commit exactly ONCE at the end of the stage — the TDD loop runs tests locally but commits nothing until all units are done. One commit per stage keeps QA's diff-scope (`HEAD~1..HEAD`) covering exactly your work:
   `git commit -m "feat(engineer): <slug> — <what>"`
 
 ## Prohibitions

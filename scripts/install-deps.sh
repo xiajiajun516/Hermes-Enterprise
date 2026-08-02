@@ -46,7 +46,7 @@ else
   exit 1
 fi
 
-# --- semgrep (deterministic zero-token scan layer for the QA gate) ------------
+# --- semgrep (zero-token pattern scan layer for the QA gate) -----------------
 if command -v semgrep >/dev/null 2>&1; then
   ok "semgrep: $(semgrep --version)"
 else

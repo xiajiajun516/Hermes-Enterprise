@@ -1,6 +1,6 @@
 ---
 name: software-engineering-team
-version: 2.0.7
+version: 2.0.8
 description: "Lightweight 3-stage engineering team orchestration (design→engineer→QA)."
 category: software-development
 ---
@@ -32,7 +32,7 @@ load:   Load skill: <stage-role>. Load se-team-rules.
 
 - **`load` is mandatory**: subagents do NOT auto-load skills — their system prompt has no skill index. The `load` clause is the only entry point; a missing `load` means the subagent runs skill-less. Always write both the stage role skill and `se-team-rules` (stage → skill mapping is fixed by the Roles table above).
 - **Input = git ref**: the subtask works from the current branch HEAD (or an explicitly named commit).
-- **Commit = the subagent commits itself**: `git add` + `git commit -m "<type>(<stage>): <desc>"` — the stage tag in the message makes `git log` the lineage.
+- **Commit = the subagent commits itself**: `git add` + `git commit -m "<type>(<stage>): <desc>"` — the stage tag in the message makes `git log` the lineage. **One commit per stage**: the engineer commits exactly once at the end of its run, so QA's diff-scope (`HEAD~1..HEAD`) always covers precisely the work under review.
 - **Verify after each stage**: before dispatching the next stage, the Master runs `git log -1 --oneline` and confirms the stage-tagged commit landed (and `git status` is clean). A stage that produced no commit silently produced nothing — re-dispatch it.
 - Upstream output is the next stage's input: QA consumes the engineer's commit.
 
@@ -51,7 +51,7 @@ Dispatch `se-team-engineer` (`load: Load skill: se-team-engineer. Load se-team-r
 
 ### 3. QA (soft gate)
 Dispatch `se-team-qa-release` (`load: Load skill: se-team-qa-release. Load se-team-rules.`):
-1. Run Semgrep scan scoped to the reviewed commit (deterministic, zero-token) — see the role skill for the exact command.
+1. Run Semgrep scan scoped to the reviewed commit (zero-token pattern scan, advisory — see the role skill for the exact command).
 2. OCR review (`ocr review --audience agent`, or delegate mode) — advisory signal.
 3. Manual agent review → `artifacts/review.md` with verdict: `APPROVED` / `CHANGES_REQUESTED` / `REJECTED`.
 
@@ -73,6 +73,7 @@ QA reports may append a one-line rule suggestion (e.g. "third NPE of the same ki
 - The Master never writes business code / SQL / project files — dispatch, decide, and patch the rules skill only (see Rule Evolution; governance is strategy, and `skills/se-team-rules/SKILL.md` is the one file the Master may edit).
 - Never rewrite git history (forward-only: a wrong record is corrected by a new commit).
 - Never overwrite another stage's output file.
+- **Prefer convention fixes over new machinery**: a process defect is fixed by changing a prompt/commit convention first (git + prompts cover ~95%); introduce a new script or tool only when a convention fix demonstrably cannot work.
 
 ## Tooling
 

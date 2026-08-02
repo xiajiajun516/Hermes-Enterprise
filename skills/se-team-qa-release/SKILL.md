@@ -7,9 +7,9 @@ category: software-development
 
 Review the engineer's commit at current HEAD and produce `artifacts/review.md` with a verdict. Output template: `templates/review-template.md`.
 
-## Step 1 — Semgrep deterministic scan (zero-token, first)
+## Step 1 — Semgrep pattern scan (zero-token, first)
 
-Run Semgrep before any LLM review — pattern-based findings need no model. **Scope it to the commit under review, not the whole repo**, so pre-existing findings never pollute the review:
+Run Semgrep before any LLM review — pattern-based findings need no model. **Scope it to the commit under review, not the whole repo**, so pre-existing findings never pollute the review. The engineer commits exactly once per stage, so HEAD vs its parent is precisely the work under review:
 
 ```bash
 # scan only the diff introduced by the engineer's commit (HEAD vs its parent)
@@ -19,7 +19,7 @@ semgrep scan --config auto --json --output semgrep-report.json $(cat /tmp/change
 
 - If `HEAD~1` doesn't exist (first commit), fall back to scanning the whole repo and note it in the review.
 - Read `semgrep-report.json` findings: `check_id`, `path`, `line`, `severity`, `message`.
-- Semgrep findings are **deterministic signals** for pattern bugs / security rules — fold them into the findings table directly; only the *semantic* questions left over go to OCR / manual review.
+- Semgrep findings are **pattern-based signals**, not ground truth: the rule set comes from the Semgrep registry (`--config auto`) and may drift over time. Fold them into the findings table directly; only the *semantic* questions left over go to OCR / manual review. A finding that would affect a verdict must be confirmed by manual review first (same rule as OCR findings).
 
 ## Step 2 — OCR mechanical review (optional, advisory)
 - `ocr review --audience agent -b "<context>"` (requires a configured LLM) or

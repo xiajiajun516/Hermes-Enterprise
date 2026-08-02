@@ -37,7 +37,7 @@ Once cloned, Hermes automatically indexes all skills globally across **all** you
 | Git | Pipeline core (a git ref is the validation) | >= 2.41 |
 | Node.js + npm | Install the `ocr` CLI | >= 18 |
 | `ocr` CLI (alibaba/open-code-review) | QA-stage LLM review gate | `npm i -g @alibaba-group/open-code-review` |
-| Semgrep | QA-stage deterministic scan (zero-token, pattern bugs/security) | `pip install semgrep` |
+| Semgrep | QA-stage pattern scan (zero-token, advisory) | `pip install semgrep` |
 | Python | `scripts/sync_skills.py` + Semgrep | >= 3.11 |
 
 **One-shot check & install** (idempotent; installs `ocr` via npm and Semgrep via pip, reports hints for system-level deps):
@@ -53,7 +53,7 @@ ocr config provider   # interactive: pick provider, enter key, pick model
 ocr config model
 ```
 
-**QA review pipeline (layered)**: Semgrep scans first (zero-token, deterministic — pattern bugs/security rules are ground truth), then OCR/LLM reviews only the remaining semantic questions, then the manual review issues the verdict.
+**QA review pipeline (layered)**: Semgrep scans first (zero-token pattern scan — findings are advisory signals, since the `--config auto` rule set drifts over time), then OCR/LLM reviews only the remaining semantic questions, then the manual review issues the verdict.
 
 ### Method 2: Preload via CLI Flag
 ```bash

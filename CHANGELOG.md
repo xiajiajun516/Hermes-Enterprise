@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.0.8
+- **One commit per stage (fix)**: the engineer now commits exactly once at
+  the end of its run instead of once per coherent unit. QA's diff-scope
+  (`git diff --name-only HEAD~1..HEAD`) therefore always covers precisely the
+  work under review — previously a multi-commit engineer run silently left
+  earlier commits outside the Semgrep/manual review scope.
+- **Semgrep wording honest (fix)**: `--config auto` pulls its rule set from
+  the Semgrep registry, which drifts over time — findings are no longer
+  described as "deterministic / ground truth". QA skill, review template, and
+  install-deps.sh now call them pattern-based signals (advisory); a finding
+  that would affect a verdict must be confirmed by manual review first, same
+  rule as OCR findings.
+- **Anti-machinery guardrail**: Hard Prohibitions gains a "prefer convention
+  fixes over new machinery" rule — process defects are fixed by changing
+  prompts/commit conventions first (git + prompts cover ~95%); new scripts or
+  tools only when a convention fix demonstrably cannot work. This release
+  itself is a text-only fix: no new scripts, no new files.
+
 ## 2.0.7
 - **Concrete deliverable paths**: stage outputs are now fixed, git-tracked
   paths — `artifacts/spec.md`, `artifacts/report.md`, `artifacts/review.md` —
