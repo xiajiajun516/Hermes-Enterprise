@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 """Sync repo skills to a Hermes skills directory; detect drift with --check.
 
-Layout mirrored:
-  <repo>/SKILL.md            -> <target>/software-engineering-team/SKILL.md
-  <repo>/<tracked files>     -> <target>/software-engineering-team/<path>
-  <repo>/skills/se-team-*/SKILL.md -> <target>/se-team-*/SKILL.md
+Only runtime files are mirrored — docs, tests, CI, and distribution metadata
+stay repo-only:
+  <repo>/SKILL.md                            -> <target>/software-engineering-team/SKILL.md
+  <repo>/{scripts,templates,references}/...  -> <target>/software-engineering-team/<path>
+  <repo>/skills/<name>/...                   -> <target>/<name>/...   (full tree)
 
-Known-divergent skills (see docs/UPDATE_BACKLOG.md U-23): se-team-rules is on an
-ignore-list — the installed copy intentionally differs (Floratech rules, out of
-scope), so it is neither copied nor checked.
+Every skill under skills/ — including se-team-rules — is mirrored in full, so
+role-skill references/ files and rule updates reach the installed copy and
+--check detects any drift.
 
 Modes:
   default   copy repo files -> target (one-way; extra target files are kept)
   --check   compare repo files vs target; exit 0 if identical, 1 + diff summary
-            when any non-ignored file drifted
+            when any mirrored file drifted
   --target  explicit target directory (the Hermes skills dir is user-machine-
             specific; never hardcoded in CI)
 """
@@ -23,8 +24,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-IGNORED_SKILLS = {"se-team-rules"}
-MASTER_NAME = "software-engineering-team"
+ROOT_MIRROR_DIRS = {"scripts", "templates", "references"}
 
 
 def _tracked_files(repo):
@@ -43,14 +43,12 @@ def _mirror_paths(repo, tracked):
     for path in tracked:
         if path == "SKILL.md":
             yield path, "software-engineering-team/SKILL.md"
-        elif path.startswith("skills/se-team-") and path.endswith("/SKILL.md"):
-            skill = path.split("/")[1]
-            if skill in IGNORED_SKILLS:
-                continue
-            yield path, f"{skill}/SKILL.md"
-        elif not path.startswith("skills/"):
+        elif path.startswith("skills/"):
+            skill, _, rest = path[len("skills/"):].partition("/")
+            if skill:
+                yield path, f"{skill}/{rest}" if rest else f"{skill}/SKILL.md"
+        elif path.split("/", 1)[0] in ROOT_MIRROR_DIRS:
             yield path, f"software-engineering-team/{path}"
-        # skills/se-team-*/SKILL.md handled above; other skills/ files are not mirrored.
 
 
 def copy_all(repo, target):
@@ -100,7 +98,7 @@ def main(argv=None):
             if missing or drifted:
                 print(f"sync --check FAILED: {len(missing)} missing, {len(drifted)} drifted")
                 return 1
-            print("sync --check OK: repo and target are identical (ignoring", ", ".join(sorted(IGNORED_SKILLS)) + ")")
+            print("sync --check OK: repo and target are identical")
             return 0
         copied = copy_all(repo, target)
         print(f"synced {len(copied)} files to {target}")

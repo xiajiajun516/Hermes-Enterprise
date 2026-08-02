@@ -17,3 +17,7 @@ jobs:
         run: |
           coverage run -m pytest tests/ -q
           coverage report
+      - name: Semgrep scan (QA gate parity)
+        run: |
+          pip install semgrep
+          semgrep scan --config auto --error scripts tests

@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.0.6
+- **Sync root-cause fix**: `scripts/sync_skills.py` no longer ignore-lists
+  `se-team-rules` — rule updates now mirror to the installed copy like every
+  other skill, and `--check` detects rule drift. Previously the Rule Evolution
+  loop told the Master to re-run sync after patching rules, but the sync
+  silently skipped that skill, so the installed copy kept diverging.
+- **Mirror hygiene**: only runtime files are mirrored (Master SKILL.md,
+  `scripts/`/`templates/`/`references/`, and full `skills/` trees — role-skill
+  references files are no longer dropped). Docs, tests, CI, and distribution
+  metadata stay repo-only, so editing them no longer causes `--check` drift in
+  the installed copy.
+- **Framework consistency tests**: new `tests/test_framework_consistency.py`
+  asserts the four version locations agree, the dispatch convention (4 fields +
+  `load` clause) stays present, and every template referenced by a role skill
+  exists.
+- **distribution.yaml**: description updated to match the v2.0 positioning
+  (was v1-era "Enterprise-grade, artifact-driven").
+- **CI**: workflow now runs the Semgrep gate (`semgrep scan --config auto
+  --error` on scripts/tests). The coverage gate (fail_under=80 via pyproject)
+  already existed but the suite scored 78% — tests extended to cover the sync
+  CLI error paths.
+
 ## 2.0.5
 - **Semgrep in the QA pipeline (layered review)**: QA now runs Semgrep first
   (zero-token deterministic scan — pattern bugs / security rules are ground
