@@ -6,8 +6,7 @@ Thumbs.db
 .env.*
 *.pem
 *.key
-# Root-only legacy artifact documents; future subdirectories are trackable.
-/artifacts/*.md
+# Stage deliverables (spec.md / report.md / review.md) are TRACKED — never ignore
 # Temporary artifacts & build outputs
 dist/
 build/

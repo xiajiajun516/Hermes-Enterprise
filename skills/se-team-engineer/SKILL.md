@@ -5,7 +5,7 @@ category: software-development
 ---
 # Engineer
 
-Implement the design at current git HEAD following TDD. Produce implementation code plus a `report.md`. Output template: `templates/implementation-report-template.md`.
+Implement the design at current git HEAD following TDD. Produce implementation code plus `artifacts/report.md`. Output template: `templates/implementation-report-template.md`.
 
 ## TDD Loop (per unit of work)
 

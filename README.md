@@ -93,6 +93,7 @@ Hermes-Enterprise/
 │   ├── se-team-qa-release/SKILL.md
 │   └── se-team-rules/SKILL.md
 ├── templates/              # Deliverable Templates (spec / report / review)
+├── artifacts/              # Stage deliverables (spec.md / report.md / review.md) — git-tracked
 └── scripts/
     └── sync_skills.py      # Mirror repo skills into the Hermes skills dir
 ```
@@ -103,41 +104,46 @@ Hermes-Enterprise/
 
 | Agent | Role | Hermes Skill | Main Deliverable |
 | :--- | :--- | :--- | :--- |
-| **Workflow Manager** | Strategy & Dispatch only | `software-engineering-team` (Master) | 4-field run convention |
-| **Design Agent** | Requirements + Architecture | `se-team-design` | single `spec.md` |
-| **Engineer Agent** | TDD Code & Unit Tests | `se-team-engineer` | code + `implementation-report` |
-| **QA & Release** | OCR gate + Review | `se-team-qa-release` | `review.md` (verdict) |
+| **Workflow Manager** | Strategy & Dispatch only | `software-engineering-team` (Master) | 5-field run convention (4 + load) |
+| **Design Agent** | Requirements + Architecture | `se-team-design` | `artifacts/spec.md` |
+| **Engineer Agent** | TDD Code & Unit Tests | `se-team-engineer` | code + `artifacts/report.md` |
+| **QA & Release** | Semgrep + OCR gate + Review | `se-team-qa-release` | `artifacts/review.md` (verdict) |
 | — | Shared Project Rules | `se-team-rules` | Loaded by all agents |
+
+Deliverable paths are fixed and git-tracked: `artifacts/spec.md`, `artifacts/report.md`, `artifacts/review.md` — never gitignored.
 
 ### How Dispatch Works (v2.0)
 
-The Master dispatches with a **4-field convention** — no contract file, no script validation; a git ref is the validation:
+The Master dispatches with a **5-field convention** (4 fields + `load` clause) — no contract file, no script validation; a git ref is the validation:
 
 ```
 delegate_task(
   goal="Design system architecture for user auth service",
   context="run: design-auth-flow. stage: design. "
-          "output: docs/design/design-auth-flow-spec.md. "
+          "output: artifacts/spec.md. "
           "rule: never overwrite other stages' output, never rewrite git history. "
           "load: Load skill: se-team-design. Load se-team-rules. "
           "Commit your deliverable yourself. Respond in Chinese."
 )
 ```
 
-The subagent calls `skill_view('se-team-design')`, gets its role and template, works from the current git HEAD, and self-commits. `git log` becomes the readable lineage.
+The subagent calls `skill_view('se-team-design')`, gets its role and template, works from the current git HEAD, and self-commits. `git log` becomes the readable lineage. After each stage the Master verifies the stage commit landed (`git log -1 --oneline`) before dispatching the next.
 
 ---
 
 ## 🔄 Self-Correction Loop
 
 ```text
-[Design Agent] ──► spec.md commit
+[Design Agent] ──► artifacts/spec.md commit
         │
         ▼
-[Engineer Agent] ──► code + report commit (TDD)
+[Spec Gate] ── Master (or user) confirms spec before engineering
         │
         ▼
-[QA & Release] ──► OCR review (advisory) + manual review → verdict
+[Engineer Agent] ──► code + artifacts/report.md commit (TDD)
+        │
+        ▼
+[QA & Release] ──► Semgrep scan (diff-scoped) + OCR review (advisory) + manual review → verdict
         │
    ┌────┴────┐
    ▼         ▼

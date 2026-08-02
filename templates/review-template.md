@@ -7,8 +7,9 @@
 - **created_at_utc**: <ISO-8601>
 
 ## Semgrep Findings (deterministic, zero-token)
-- **Command**: <semgrep scan --config auto --json>
-- **Findings**: <count by severity; fold into section 3 directly — ground truth, no LLM confirmation needed>
+- **Command**: <git diff --name-only HEAD~1..HEAD …; semgrep scan --config auto --json>
+- **Scope**: <changed files only; note if full-repo fallback was used>
+- **Findings**: <count by severity; fold into section 3 directly — deterministic signals, no LLM confirmation needed>
 
 ## OCR Mechanical Review (optional, advisory)
 - **Command**: <ocr review ... / ocr delegate preview>

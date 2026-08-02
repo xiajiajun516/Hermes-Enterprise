@@ -5,18 +5,21 @@ category: software-development
 ---
 # QA & Release
 
-Review the engineer's commit at current HEAD and produce `review.md` with a verdict. Output template: `templates/review-template.md`.
+Review the engineer's commit at current HEAD and produce `artifacts/review.md` with a verdict. Output template: `templates/review-template.md`.
 
 ## Step 1 — Semgrep deterministic scan (zero-token, first)
-Run Semgrep before any LLM review — pattern-based findings need no model:
+
+Run Semgrep before any LLM review — pattern-based findings need no model. **Scope it to the commit under review, not the whole repo**, so pre-existing findings never pollute the review:
 
 ```bash
-semgrep scan --config auto --json --output semgrep-report.json
+# scan only the diff introduced by the engineer's commit (HEAD vs its parent)
+git diff --name-only HEAD~1..HEAD | grep -E '\.(py|js|ts|tsx|jsx|go|java|rb|php|json|yaml|yml)$' > /tmp/changed-files.txt
+semgrep scan --config auto --json --output semgrep-report.json $(cat /tmp/changed-files.txt)
 ```
 
+- If `HEAD~1` doesn't exist (first commit), fall back to scanning the whole repo and note it in the review.
 - Read `semgrep-report.json` findings: `check_id`, `path`, `line`, `severity`, `message`.
-- Semgrep findings are **ground truth** for pattern bugs / security rules — fold them into the findings table directly, no LLM confirmation needed.
-- Only the *semantic* questions left over go to OCR / manual review.
+- Semgrep findings are **deterministic signals** for pattern bugs / security rules — fold them into the findings table directly; only the *semantic* questions left over go to OCR / manual review.
 
 ## Step 2 — OCR mechanical review (optional, advisory)
 - `ocr review --audience agent -b "<context>"` (requires a configured LLM) or
@@ -48,7 +51,7 @@ semgrep scan --config auto --json --output semgrep-report.json
   (e.g. "third NPE — add a null-check rule to se-team-rules").
 
 ## Deliver
-- Write `review.md` per the template, then commit yourself:
+- Write `artifacts/review.md` per the template, then commit yourself:
   `git commit -m "docs(qa): <slug> review"`
 
 ## Prohibitions

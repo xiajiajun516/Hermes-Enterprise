@@ -1,6 +1,6 @@
 ---
 name: software-engineering-team
-version: 2.0.6
+version: 2.0.7
 description: "Lightweight 3-stage engineering team orchestration (design→engineer→QA)."
 category: software-development
 ---
@@ -12,11 +12,11 @@ Daily-driver edition: a three-stage pipeline (design → engineer → QA). Immut
 
 | Stage | Skill | Deliverable |
 |---|---|---|
-| design | `se-team-design` | single `spec.md` (requirements + architecture + implementation plan) |
-| engineer | `se-team-engineer` | implementation code + `report.md` |
-| qa | `se-team-qa-release` | `review.md` (OCR gate + verdict) |
+| design | `se-team-design` | `artifacts/spec.md` (requirements + architecture + implementation plan) |
+| engineer | `se-team-engineer` | implementation code + `artifacts/report.md` |
+| qa | `se-team-qa-release` | `artifacts/review.md` (Semgrep + OCR gate + verdict) |
 
-Every agent also loads `se-team-rules` for project standards.
+Deliverable paths are fixed — subagents write to the exact paths above, and these files are git-tracked (never ignore them). Every agent also loads `se-team-rules` for project standards.
 
 ## Dispatch Convention (4 fields + load clause)
 
@@ -25,7 +25,7 @@ Every `delegate_task` context carries these fields — no contract file, no scri
 ```text
 run:    <stage>-<short-slug>          # e.g. design-auth-flow
 stage:  design | engineer | qa
-output: <deliverable path per role table>
+output: artifacts/spec.md | artifacts/report.md | artifacts/review.md   # fixed per stage — see Roles table
 rule:   Never overwrite another stage's output; never rewrite git history; obey se-team-rules
 load:   Load skill: <stage-role>. Load se-team-rules.
 ```
@@ -33,20 +33,27 @@ load:   Load skill: <stage-role>. Load se-team-rules.
 - **`load` is mandatory**: subagents do NOT auto-load skills — their system prompt has no skill index. The `load` clause is the only entry point; a missing `load` means the subagent runs skill-less. Always write both the stage role skill and `se-team-rules` (stage → skill mapping is fixed by the Roles table above).
 - **Input = git ref**: the subtask works from the current branch HEAD (or an explicitly named commit).
 - **Commit = the subagent commits itself**: `git add` + `git commit -m "<type>(<stage>): <desc>"` — the stage tag in the message makes `git log` the lineage.
+- **Verify after each stage**: before dispatching the next stage, the Master runs `git log -1 --oneline` and confirms the stage-tagged commit landed (and `git status` is clean). A stage that produced no commit silently produced nothing — re-dispatch it.
 - Upstream output is the next stage's input: QA consumes the engineer's commit.
 
 ## Pipeline
 
 ### 1. design
-Dispatch `se-team-design` (`load: Load skill: se-team-design. Load se-team-rules.`): analyze the goal, produce one `spec.md` (requirements + architecture + implementation plan), commit it.
+Dispatch `se-team-design` (`load: Load skill: se-team-design. Load se-team-rules.`): analyze the goal, produce `artifacts/spec.md` (requirements + architecture + implementation plan), commit it.
+
+### Spec gate (before engineer)
+The Master reads `artifacts/spec.md` and decides:
+- **Clear and scoped** → dispatch engineer.
+- **Ambiguous, self-contradictory, or high-risk** → confirm with the user first (the user is the spec authority); never let the engineer build on a spec the user hasn't seen. Re-dispatch design if requirements need another pass.
 
 ### 2. engineer
-Dispatch `se-team-engineer` (`load: Load skill: se-team-engineer. Load se-team-rules.`): TDD implementation (RED→GREEN→REFACTOR), produce code + `report.md`, commit it.
+Dispatch `se-team-engineer` (`load: Load skill: se-team-engineer. Load se-team-rules.`): TDD implementation (RED→GREEN→REFACTOR), produce code + `artifacts/report.md`, commit it.
 
 ### 3. QA (soft gate)
 Dispatch `se-team-qa-release` (`load: Load skill: se-team-qa-release. Load se-team-rules.`):
-1. Run OCR review (`ocr review --audience agent`, or delegate mode) — advisory signal.
-2. Manual agent review → `review.md` with verdict: `APPROVED` / `CHANGES_REQUESTED` / `REJECTED`.
+1. Run Semgrep scan scoped to the reviewed commit (deterministic, zero-token) — see the role skill for the exact command.
+2. OCR review (`ocr review --audience agent`, or delegate mode) — advisory signal.
+3. Manual agent review → `artifacts/review.md` with verdict: `APPROVED` / `CHANGES_REQUESTED` / `REJECTED`.
 
 ## Rework Loop
 
@@ -63,7 +70,7 @@ QA reports may append a one-line rule suggestion (e.g. "third NPE of the same ki
 
 ## Hard Prohibitions
 
-- The Master never writes business code / SQL / files — dispatch, decide, and patch rule files only.
+- The Master never writes business code / SQL / project files — dispatch, decide, and patch the rules skill only (see Rule Evolution; governance is strategy, and `skills/se-team-rules/SKILL.md` is the one file the Master may edit).
 - Never rewrite git history (forward-only: a wrong record is corrected by a new commit).
 - Never overwrite another stage's output file.
 

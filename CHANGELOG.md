@@ -1,5 +1,30 @@
 # Changelog
 
+## 2.0.7
+- **Concrete deliverable paths**: stage outputs are now fixed, git-tracked
+  paths — `artifacts/spec.md`, `artifacts/report.md`, `artifacts/review.md` —
+  replacing the undefined "output per role table". The `.gitignore`
+  `/artifacts/*.md` rule that silently dropped them from git was removed.
+  New consistency test `test_output_paths_are_concrete_and_tracked` guards
+  the paths and the gitignore.
+- **Spec gate**: after design commits `artifacts/spec.md`, the Master reviews
+  it before dispatching the engineer; ambiguous/high-risk specs go to the
+  user first — never engineer on an unseen spec.
+- **Post-stage verification**: Master runs `git log -1 --oneline` after each
+  stage to confirm the stage commit landed (a stage that produced no commit
+  silently produced nothing) before dispatching the next.
+- **Semgrep gate is diff-scoped**: QA now scans only the commit under review
+  (`git diff --name-only HEAD~1..HEAD`) instead of the whole repo, so
+  pre-existing findings never pollute the verdict; findings are described as
+  deterministic signals, not unverified "ground truth".
+- **Prohibition clarified**: the Master's no-file-writing rule now explicitly
+  carves out the one governance file it may patch
+  (`skills/se-team-rules/SKILL.md`), resolving the contradiction with Rule
+  Evolution.
+- **Ops skill hygiene**: `hermes-enterprise-ops` pitfalls updated (dead
+  `agent_slug`/README.zh-CN pitfalls removed, deliverable-path and
+  diff-scoped-Semgrep pitfalls added), version synced to 2.0.7.
+
 ## 2.0.6
 - **Sync root-cause fix**: `scripts/sync_skills.py` no longer ignore-lists
   `se-team-rules` — rule updates now mirror to the installed copy like every
