@@ -34,6 +34,20 @@ def test_dispatch_convention_carries_all_four_fields_plus_load():
         assert field in master, f"dispatch field {field!r} missing from SKILL.md"
 
 
+def test_load_clause_allows_task_relevant_skills():
+    """The load clause keeps its fixed prefix (role skill + se-team-rules) and
+    allows an optional tail of task-relevant skills per run."""
+    master = _read("SKILL.md")
+    # fixed prefix semantics must be stated
+    assert "fixed prefix" in master, "load clause must document its fixed prefix"
+    assert "Load se-team-rules" in master
+    # task-relevant skills are appended between role skill and se-team-rules
+    assert "task-relevant skills" in master
+    assert "Load skill: <stage-role>. [Load skill: <task-relevant skill>. ...] Load se-team-rules." in master
+    # an example mapping must exist so the Master knows how to pick
+    assert "angular-development" in master or "database-management" in master
+
+
 def test_output_paths_are_concrete_and_tracked():
     """Deliverables must be fixed, git-tracked paths — never gitignored."""
     master = _read("SKILL.md")

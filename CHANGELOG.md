@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.0
+- **Task-relevant skills in the `load` clause**: the Master now appends 0–3
+  task-relevant skills (e.g. `angular-development` for Angular work,
+  `database-management` for DB work) to every dispatch's `load` clause,
+  between the stage role skill and `se-team-rules`. Subagents load every skill
+  named in the clause, so they get both the stage workflow and the domain
+  context the task needs. The fixed prefix (role skill + `se-team-rules`) is
+  never replaced; `skills_list` is checked before naming a skill; fewer,
+  sharper skills are preferred over more.
+
 ## 2.0.9
 - **Dated, type-organized deliverables**: stage outputs moved from fixed
   `artifacts/spec.md` / `report.md` / `review.md` to type folders under

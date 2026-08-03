@@ -116,18 +116,18 @@ Deliverables live under `artifacts/`, organized by document type (`spec/`, `repo
 
 The Master dispatches with a **5-field convention** (4 fields + `load` clause) — no contract file, no script validation; a git ref is the validation:
 
-```
+```text
 delegate_task(
   goal="Design system architecture for user auth service",
   context="run: design-auth-flow. stage: design. "
           "output: artifacts/spec/03-08-2026-spec.md. "
           "rule: never overwrite other stages' output, never rewrite git history. "
-          "load: Load skill: se-team-design. Load se-team-rules. "
+          "load: Load skill: se-team-design. Load skill: backend-development. Load se-team-rules. "
           "Commit your deliverable yourself. Respond in Chinese."
 )
 ```
 
-The subagent calls `skill_view('se-team-design')`, gets its role and template, works from the current git HEAD, and self-commits. `git log` becomes the readable lineage. After each stage the Master verifies the stage commit landed (`git log -1 --oneline`) before dispatching the next.
+The subagent calls `skill_view('se-team-design')` (plus any task-relevant skills the Master appended, e.g. `backend-development` above), gets its role and template, works from the current git HEAD, and self-commits. `git log` becomes the readable lineage. After each stage the Master verifies the stage commit landed (`git log -1 --oneline`) before dispatching the next.
 
 ---
 

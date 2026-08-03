@@ -1,5 +1,5 @@
 name: software-engineering-team
-version: "2.0.9"
+version: "2.1.0"
 description: "Lightweight 3-stage engineering team orchestration (design→engineer→QA)."
 author: "xiajiajun516"
 repository: "https://github.com/xiajiajun516/Hermes-Enterprise"
