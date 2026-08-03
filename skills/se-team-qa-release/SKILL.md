@@ -5,7 +5,7 @@ category: software-development
 ---
 # QA & Release
 
-Review the engineer's commit at current HEAD and produce `artifacts/review.md` with a verdict. Output template: `templates/review-template.md`.
+Review the engineer's commit at current HEAD and produce `artifacts/review/<DD-MM-YYYY>-review.md` with a verdict. Output template: `templates/review-template.md`. The exact output path (with the run date) comes from the dispatch context's `output:` field — write **exactly that path**, never a date or filename of your own.
 
 ## Step 1 — Semgrep pattern scan (zero-token, first)
 
@@ -51,7 +51,7 @@ semgrep scan --config auto --json --output semgrep-report.json $(cat /tmp/change
   (e.g. "third NPE — add a null-check rule to se-team-rules").
 
 ## Deliver
-- Write `artifacts/review.md` per the template, then commit yourself:
+- Write `artifacts/review/<DD-MM-YYYY>-review.md` per the template, then commit yourself:
   `git commit -m "docs(qa): <slug> review"`
 
 ## Prohibitions

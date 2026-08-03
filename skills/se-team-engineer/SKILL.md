@@ -5,7 +5,7 @@ category: software-development
 ---
 # Engineer
 
-Implement the design at current git HEAD following TDD. Produce implementation code plus `artifacts/report.md`. Output template: `templates/implementation-report-template.md`.
+Implement the design at current git HEAD following TDD. Produce implementation code plus `artifacts/report/<DD-MM-YYYY>-report.md`. Output template: `templates/implementation-report-template.md`. The exact output path (with the run date) comes from the dispatch context's `output:` field — write **exactly that path**, never a date or filename of your own.
 
 ## TDD Loop (per unit of work)
 

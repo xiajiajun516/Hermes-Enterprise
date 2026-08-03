@@ -5,7 +5,7 @@ category: software-development
 ---
 # Design
 
-Analyze the goal and produce a **single `artifacts/spec.md`** covering requirements, architecture, and implementation plan. Work from the current git HEAD (or the named input commit). Output template: `templates/spec-template.md`.
+Analyze the goal and produce a **single `artifacts/spec/<DD-MM-YYYY>-spec.md`** covering requirements, architecture, and implementation plan. Work from the current git HEAD (or the named input commit). Output template: `templates/spec-template.md`. The exact output path (with the run date) comes from the dispatch context's `output:` field — write **exactly that path**, never a date or filename of your own.
 
 ## Workflow
 
@@ -28,7 +28,7 @@ Analyze the goal and produce a **single `artifacts/spec.md`** covering requireme
 - Flag risky steps (migrations, deletions, external API changes) for human confirmation during engineering.
 
 ### 5. Deliver
-- Write `artifacts/spec.md` per the template, then commit yourself:
+- Write `artifacts/spec/<DD-MM-YYYY>-spec.md` per the template, then commit yourself:
   `git commit -m "docs(design): <slug> spec"`
 
 ## Prohibitions

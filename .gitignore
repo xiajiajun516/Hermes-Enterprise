@@ -6,7 +6,7 @@ Thumbs.db
 .env.*
 *.pem
 *.key
-# Stage deliverables (spec.md / report.md / review.md) are TRACKED — never ignore
+# Stage deliverables (artifacts/spec/ artifacts/report/ artifacts/review/, dated files) are TRACKED — never ignore
 # Temporary artifacts & build outputs
 dist/
 build/

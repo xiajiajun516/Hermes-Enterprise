@@ -1,6 +1,6 @@
 ---
 name: software-engineering-team
-version: 2.0.8
+version: 2.0.9
 description: "Lightweight 3-stage engineering team orchestration (design→engineer→QA)."
 category: software-development
 ---
@@ -12,11 +12,11 @@ Daily-driver edition: a three-stage pipeline (design → engineer → QA). Immut
 
 | Stage | Skill | Deliverable |
 |---|---|---|
-| design | `se-team-design` | `artifacts/spec.md` (requirements + architecture + implementation plan) |
-| engineer | `se-team-engineer` | implementation code + `artifacts/report.md` |
-| qa | `se-team-qa-release` | `artifacts/review.md` (Semgrep + OCR gate + verdict) |
+| design | `se-team-design` | `artifacts/spec/<DD-MM-YYYY>-spec.md` (requirements + architecture + implementation plan) |
+| engineer | `se-team-engineer` | implementation code + `artifacts/report/<DD-MM-YYYY>-report.md` |
+| qa | `se-team-qa-release` | `artifacts/review/<DD-MM-YYYY>-review.md` (Semgrep + OCR gate + verdict) |
 
-Deliverable paths are fixed — subagents write to the exact paths above, and these files are git-tracked (never ignore them). Every agent also loads `se-team-rules` for project standards.
+Deliverables are written under `artifacts/`, organized by document type (`spec/`, `report/`, `review/`), and named with the run date prefix `<DD-MM-YYYY>-<name>` (e.g. `03-08-2026-spec.md`). The date is the **run date** — the Master fills it in at dispatch time and hands the exact `output:` path to the subagent (see Dispatch Convention); subagents never invent their own path or date. These files are git-tracked (never ignore them). Every agent also loads `se-team-rules` for project standards.
 
 ## Dispatch Convention (4 fields + load clause)
 
@@ -25,12 +25,13 @@ Every `delegate_task` context carries these fields — no contract file, no scri
 ```text
 run:    <stage>-<short-slug>          # e.g. design-auth-flow
 stage:  design | engineer | qa
-output: artifacts/spec.md | artifacts/report.md | artifacts/review.md   # fixed per stage — see Roles table
+output: artifacts/spec/<DD-MM-YYYY>-spec.md | artifacts/report/<DD-MM-YYYY>-report.md | artifacts/review/<DD-MM-YYYY>-review.md   # fixed per stage, date = run date — see Roles table
 rule:   Never overwrite another stage's output; never rewrite git history; obey se-team-rules
 load:   Load skill: <stage-role>. Load se-team-rules.
 ```
 
 - **`load` is mandatory**: subagents do NOT auto-load skills — their system prompt has no skill index. The `load` clause is the only entry point; a missing `load` means the subagent runs skill-less. Always write both the stage role skill and `se-team-rules` (stage → skill mapping is fixed by the Roles table above).
+- **`output` carries the run date**: the Master computes `<DD-MM-YYYY>` from the run date and writes the exact path into the `output:` field; the subagent writes **exactly that path** — it never derives its own date or filename.
 - **Input = git ref**: the subtask works from the current branch HEAD (or an explicitly named commit).
 - **Commit = the subagent commits itself**: `git add` + `git commit -m "<type>(<stage>): <desc>"` — the stage tag in the message makes `git log` the lineage. **One commit per stage**: the engineer commits exactly once at the end of its run, so QA's diff-scope (`HEAD~1..HEAD`) always covers precisely the work under review.
 - **Verify after each stage**: before dispatching the next stage, the Master runs `git log -1 --oneline` and confirms the stage-tagged commit landed (and `git status` is clean). A stage that produced no commit silently produced nothing — re-dispatch it.
@@ -39,21 +40,21 @@ load:   Load skill: <stage-role>. Load se-team-rules.
 ## Pipeline
 
 ### 1. design
-Dispatch `se-team-design` (`load: Load skill: se-team-design. Load se-team-rules.`): analyze the goal, produce `artifacts/spec.md` (requirements + architecture + implementation plan), commit it.
+Dispatch `se-team-design` (`load: Load skill: se-team-design. Load se-team-rules.`): analyze the goal, produce `artifacts/spec/<DD-MM-YYYY>-spec.md` (requirements + architecture + implementation plan), commit it.
 
 ### Spec gate (before engineer)
-The Master reads `artifacts/spec.md` and decides:
+The Master reads `artifacts/spec/<DD-MM-YYYY>-spec.md` (the exact path it dispatched) and decides:
 - **Clear and scoped** → dispatch engineer.
 - **Ambiguous, self-contradictory, or high-risk** → confirm with the user first (the user is the spec authority); never let the engineer build on a spec the user hasn't seen. Re-dispatch design if requirements need another pass.
 
 ### 2. engineer
-Dispatch `se-team-engineer` (`load: Load skill: se-team-engineer. Load se-team-rules.`): TDD implementation (RED→GREEN→REFACTOR), produce code + `artifacts/report.md`, commit it.
+Dispatch `se-team-engineer` (`load: Load skill: se-team-engineer. Load se-team-rules.`): TDD implementation (RED→GREEN→REFACTOR), produce code + `artifacts/report/<DD-MM-YYYY>-report.md`, commit it.
 
 ### 3. QA (soft gate)
 Dispatch `se-team-qa-release` (`load: Load skill: se-team-qa-release. Load se-team-rules.`):
 1. Run Semgrep scan scoped to the reviewed commit (zero-token pattern scan, advisory — see the role skill for the exact command).
 2. OCR review (`ocr review --audience agent`, or delegate mode) — advisory signal.
-3. Manual agent review → `artifacts/review.md` with verdict: `APPROVED` / `CHANGES_REQUESTED` / `REJECTED`.
+3. Manual agent review → `artifacts/review/<DD-MM-YYYY>-review.md` with verdict: `APPROVED` / `CHANGES_REQUESTED` / `REJECTED`.
 
 ## Rework Loop
 

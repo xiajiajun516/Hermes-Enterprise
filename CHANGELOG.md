@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.9
+- **Dated, type-organized deliverables**: stage outputs moved from fixed
+  `artifacts/spec.md` / `report.md` / `review.md` to type folders under
+  `artifacts/` — `artifacts/spec/<DD-MM-YYYY>-spec.md`,
+  `artifacts/report/<DD-MM-YYYY>-report.md`,
+  `artifacts/review/<DD-MM-YYYY>-review.md`. The Master computes the run-date
+  prefix and hands the exact `output:` path to the subagent; subagents never
+  derive their own date or filename. Every run now leaves a dated, non-
+  overwriting record per stage.
+
 ## 2.0.8
 - **One commit per stage (fix)**: the engineer now commits exactly once at
   the end of its run instead of once per coherent unit. QA's diff-scope
