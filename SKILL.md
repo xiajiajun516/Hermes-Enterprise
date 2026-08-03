@@ -1,6 +1,6 @@
 ---
 name: software-engineering-team
-version: 2.1.0
+version: 2.2.0
 description: "Lightweight 3-stage engineering team orchestration (design→engineer→QA)."
 category: software-development
 ---
@@ -18,18 +18,28 @@ Daily-driver edition: a three-stage pipeline (design → engineer → QA). Immut
 
 Deliverables are written under `artifacts/`, organized by document type (`spec/`, `report/`, `review/`), and named with the run date prefix `<DD-MM-YYYY>-<name>` (e.g. `03-08-2026-spec.md`). The date is the **run date** — the Master fills it in at dispatch time and hands the exact `output:` path to the subagent (see Dispatch Convention); subagents never invent their own path or date. These files are git-tracked (never ignore them). Every agent also loads `se-team-rules` for project standards.
 
-## Dispatch Convention (4 fields + load clause)
+## Dispatch Convention (8 fields + load clause)
 
 Every `delegate_task` context carries these fields — no contract file, no script validation; **a git ref is the validation**:
 
 ```text
-run:    <stage>-<short-slug>          # e.g. design-auth-flow
+run:    <stage>-<short-slug>                    # e.g. design-auth-flow
 stage:  design | engineer | qa
+goal:   <restated objective: what + hard constraints + explicit non-goals>
+repo:   <tech stack + key commands, max 3 lines>
+source: <source of truth: user requirements | spec path | spec + engineer commit>
 output: artifacts/spec/<DD-MM-YYYY>-spec.md | artifacts/report/<DD-MM-YYYY>-report.md | artifacts/review/<DD-MM-YYYY>-review.md   # fixed per stage, date = run date — see Roles table
+verify: <stage acceptance: 1-2 concrete commands/checks>
 rule:   Never overwrite another stage's output; never rewrite git history; obey se-team-rules
 load:   Load skill: <stage-role>. [Load skill: <task-relevant skill>. ...] Load se-team-rules.
 ```
 
+Fixed closing sentence (always appended): `Write your deliverable in <user's language>.`
+
+- **`goal` (restated)**: rephrase the user's request into one paragraph — the objective, the hard constraints, and what is explicitly out of scope. The subagent should never have to guess the intent; a goal that fits in one sentence is fine.
+- **`repo` (tech stack + commands)**: 1–3 lines naming the stack (frameworks, versions) and the key commands the subagent will need (`npm run build`, `dotnet test`, `pytest`, dev-server ports, proxy notes). The subagent reads this instead of discovering the environment from scratch. When unsure, the Master probes the repo once before dispatching.
+- **`source` (source of truth)**: design → `user requirements`; engineer → the exact spec path (`artifacts/spec/<DD-MM-YYYY>-spec.md`); QA → the spec path + the engineer's commit. On any contradiction, the subagent defers to this source and reports the conflict instead of improvising.
+- **`verify` (acceptance)**: 1–2 concrete checks that define "done" for this stage — e.g. design: `spec covers every FR with an AC`; engineer: `cd frontend && npm run build exits 0, tests green`; QA: `verdict + evidence in review.md`. More specific than the role skill's generic "run the tests".
 - **`load` is mandatory**: subagents do NOT auto-load skills — their system prompt has no skill index. The `load` clause is the only entry point; a missing `load` means the subagent runs skill-less. The clause has a **fixed prefix** — the stage role skill plus `se-team-rules` (stage → skill mapping is fixed by the Roles table above) — and an **optional tail of task-relevant skills** the Master adds per run (see below). Subagents load **every** skill named in the clause, in order.
 - **Task-relevant skills (before each dispatch)**: the Master reviews the goal and the repo's tech stack, then appends 0–3 highly relevant skills to the `load` clause — e.g. Angular task → `angular-development`; .NET backend → `dotnet-minimal-api` / `backend-development`; DB work → `database-management`; frontend UI → `frontend-development`; firmware/IoT → `iot-device-integration`. Use `skills_list` to confirm a skill exists before naming it. Prefer **fewer, sharper** skills: every added skill costs subagent context; when in doubt, omit. Never replace the fixed prefix — task skills come **after** the role skill and **before** `se-team-rules`.
 - **`output` carries the run date**: the Master computes `<DD-MM-YYYY>` from the run date and writes the exact path into the `output:` field; the subagent writes **exactly that path** — it never derives its own date or filename.
@@ -41,7 +51,7 @@ load:   Load skill: <stage-role>. [Load skill: <task-relevant skill>. ...] Load 
 ## Pipeline
 
 ### 1. design
-Dispatch `se-team-design` (`load: Load skill: se-team-design. [Load skill: <task-relevant skill>. ...] Load se-team-rules.`): analyze the goal, produce `artifacts/spec/<DD-MM-YYYY>-spec.md` (requirements + architecture + implementation plan), commit it. Example for an Angular frontend goal: `load: Load skill: se-team-design. Load skill: angular-development. Load skill: frontend-development. Load se-team-rules.`
+Dispatch `se-team-design` (`load: Load skill: se-team-design. [Load skill: <task-relevant skill>. ...] Load se-team-rules.`): analyze the goal, produce `artifacts/spec/<DD-MM-YYYY>-spec.md` (requirements + architecture + implementation plan), commit it. Example for an Angular frontend goal: `goal: 设计用户认证服务的系统架构,硬约束=只用 Angular Material,不做后端改动. repo: Angular 22 frontend/, npm run build 验证. source: 用户需求. verify: spec 覆盖每个 FR 且有 AC. load: Load skill: se-team-design. Load skill: angular-development. Load skill: frontend-development. Load se-team-rules. Write your deliverable in Chinese.`
 
 ### Spec gate (before engineer)
 The Master reads `artifacts/spec/<DD-MM-YYYY>-spec.md` (the exact path it dispatched) and decides:
@@ -49,7 +59,7 @@ The Master reads `artifacts/spec/<DD-MM-YYYY>-spec.md` (the exact path it dispat
 - **Ambiguous, self-contradictory, or high-risk** → confirm with the user first (the user is the spec authority); never let the engineer build on a spec the user hasn't seen. Re-dispatch design if requirements need another pass.
 
 ### 2. engineer
-Dispatch `se-team-engineer` (`load: Load skill: se-team-engineer. [Load skill: <task-relevant skill>. ...] Load se-team-rules.`): TDD implementation (RED→GREEN→REFACTOR), produce code + `artifacts/report/<DD-MM-YYYY>-report.md`, commit it. The same task-relevant skills from the design dispatch carry into the engineer dispatch — the engineer needs the same domain context to implement the spec.
+Dispatch `se-team-engineer` (`load: Load skill: se-team-engineer. [Load skill: <task-relevant skill>. ...] Load se-team-rules.`): TDD implementation (RED→GREEN→REFACTOR), produce code + `artifacts/report/<DD-MM-YYYY>-report.md`, commit it. The same task-relevant skills from the design dispatch carry into the engineer dispatch — the engineer needs the same domain context to implement the spec. `source` is now the spec path (`artifacts/spec/<DD-MM-YYYY>-spec.md`); `verify` is concrete — e.g. `cd frontend && npm run build exits 0, tests green`.
 
 ### 3. QA (soft gate)
 Dispatch `se-team-qa-release` (`load: Load skill: se-team-qa-release. [Load skill: <task-relevant skill>. ...] Load se-team-rules.`):

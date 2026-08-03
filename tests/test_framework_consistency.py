@@ -30,8 +30,19 @@ def test_version_consistent_across_all_four_files():
 
 def test_dispatch_convention_carries_all_four_fields_plus_load():
     master = _read("SKILL.md")
-    for field in ("run:", "stage:", "output:", "rule:", "load:"):
+    for field in ("run:", "stage:", "goal:", "repo:", "source:", "output:", "verify:", "rule:", "load:"):
         assert field in master, f"dispatch field {field!r} missing from SKILL.md"
+
+
+def test_dispatch_context_carries_high_roi_fields():
+    """goal/repo/source/verify + language closing sentence are documented so
+    subagents get task-specific context instead of discovering it."""
+    master = _read("SKILL.md")
+    for concept in ("restated objective", "tech stack", "source of truth",
+                    "acceptance", "Write your deliverable in"):
+        assert concept in master, f"dispatch convention must document {concept!r}"
+    # per-stage source-of-truth mapping must exist
+    assert "user requirements" in master and "spec path" in master
 
 
 def test_load_clause_allows_task_relevant_skills():

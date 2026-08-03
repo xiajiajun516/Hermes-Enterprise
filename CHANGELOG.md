@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.2.0
+- **Richer dispatch context (5 high-ROI fields)**: the dispatch convention grows
+  from 4 to 8 fields — new `goal` (restated objective + constraints +
+  non-goals), `repo` (tech stack + key commands, ≤3 lines), `source` (source of
+  truth per stage: user requirements → spec path → spec + engineer commit),
+  `verify` (concrete stage acceptance checks), plus a fixed closing sentence
+  `Write your deliverable in <user's language>.` The subagent gets task-specific
+  context (environment, truth source, done-definition) instead of discovering
+  it from scratch; generic workflow stays in the role skills. Anti-machinery:
+  this is a prompt-convention change only — no new scripts or files.
+
 ## 2.1.0
 - **Task-relevant skills in the `load` clause**: the Master now appends 0–3
   task-relevant skills (e.g. `angular-development` for Angular work,

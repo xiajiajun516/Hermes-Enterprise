@@ -120,14 +120,18 @@ The Master dispatches with a **5-field convention** (4 fields + `load` clause) �
 delegate_task(
   goal="Design system architecture for user auth service",
   context="run: design-auth-flow. stage: design. "
+          "goal: 设计用户认证服务系统架构,硬约束=只用 Angular Material,不改后端. "
+          "repo: Angular 22 frontend/, npm run build 验证. "
+          "source: 用户需求. "
           "output: artifacts/spec/03-08-2026-spec.md. "
+          "verify: spec 覆盖每个 FR 且有 AC. "
           "rule: never overwrite other stages' output, never rewrite git history. "
           "load: Load skill: se-team-design. Load skill: backend-development. Load se-team-rules. "
-          "Commit your deliverable yourself. Respond in Chinese."
+          "Write your deliverable in Chinese."
 )
 ```
 
-The subagent calls `skill_view('se-team-design')` (plus any task-relevant skills the Master appended, e.g. `backend-development` above), gets its role and template, works from the current git HEAD, and self-commits. `git log` becomes the readable lineage. After each stage the Master verifies the stage commit landed (`git log -1 --oneline`) before dispatching the next.
+The subagent calls `skill_view('se-team-design')` (plus any task-relevant skills the Master appended, e.g. `backend-development` above), works from the current git HEAD using the dispatch context (goal / repo / source / verify), and self-commits. `git log` becomes the readable lineage. After each stage the Master verifies the stage commit landed (`git log -1 --oneline`) before dispatching the next.
 
 ---
 
